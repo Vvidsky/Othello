@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>591098093223-uilgqrb955u4657k275qqm3uip7om78l.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.591098093223-uilgqrb955u4657k275qqm3uip7om78l</string>
+	<key>API_KEY</key>
+	<string>AIzaSyApUcSvYmRN6me7_m2Q9HGIL7z1A2bMZ94</string>
+	<key>GCM_SENDER_ID</key>
+	<string>591098093223</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.othello</string>
+	<key>PROJECT_ID</key>
+	<string>othello-5602d</string>
+	<key>STORAGE_BUCKET</key>
+	<string>othello-5602d.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:591098093223:ios:64654d6178822760d48582</string>
+	<key>DATABASE_URL</key>
+	<string>https://othello-5602d-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+</dict>
+</plist>

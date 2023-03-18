@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "591098093223",
+    "firebase_url": "https://othello-5602d-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "othello-5602d",
+    "storage_bucket": "othello-5602d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:591098093223:android:039be660191b5cc0d48582",
+        "android_client_info": {
+          "package_name": "com.example.othello"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "591098093223-vevsccq0iisocd64tli3tqbjua9hgctr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdjg1PtHlEMxOZ7fatXFCQTc39pm9fNOE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "591098093223-vevsccq0iisocd64tli3tqbjua9hgctr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "591098093223-uilgqrb955u4657k275qqm3uip7om78l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.othello"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
