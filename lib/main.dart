@@ -4,6 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'Signup.dart';
+import 'game.dart';
 
 /// This sample app shows an app with two screens.
 ///
@@ -30,6 +32,18 @@ final GoRouter _router = GoRouter(
             return const DetailsScreen();
           },
         ),
+        GoRoute(
+          path: 'signup',
+          builder: (BuildContext context, GoRouterState state) {
+            return const SignUpPage();
+          },
+        ),
+        GoRoute(
+          path: 'game',
+          builder: (BuildContext context, GoRouterState state) {
+            return GamePage("game");
+          },
+        ),
       ],
     ),
   ],
@@ -44,6 +58,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       routerConfig: _router,
+      theme: ThemeData.light(useMaterial3: true),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -62,7 +78,7 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ElevatedButton(
-              onPressed: () => context.go('/details'),
+              onPressed: () => context.go('/game'),
               child: const Text('Go to the Details screen'),
             ),
           ],
