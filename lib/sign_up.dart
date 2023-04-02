@@ -8,16 +8,16 @@ class SignUpPage extends StatelessWidget {
     // SignUpPage builds its own Navigator which ends up being a nested
     // Navigator in our app.
     return Navigator(
-      initialRoute: 'signup/personal_info',
+      initialRoute: 'register',
       onGenerateRoute: (RouteSettings settings) {
         WidgetBuilder builder;
         switch (settings.name) {
-          case 'signup/personal_info':
+          case 'register/personal_info':
             // Assume CollectPersonalInfoPage collects personal info and then
             // navigates to 'signup/choose_credentials'.
             builder = (BuildContext context) => const CollectPersonalInfoPage();
             break;
-          case 'signup/choose_credentials':
+          case 'register/choose_credentials':
             // Assume ChooseCredentialsPage collects new credentials and then
             // invokes 'onSignupComplete()'.
             builder = (BuildContext _) => ChooseCredentialsPage(
@@ -52,7 +52,7 @@ class CollectPersonalInfoPage extends StatelessWidget {
           // This moves from the personal info page to the credentials page,
           // replacing this page with that one.
           Navigator.of(context)
-              .pushReplacementNamed('signup/choose_credentials');
+              .pushReplacementNamed('register/choose_credentials');
         },
         child: Container(
           color: Colors.lightBlue,
