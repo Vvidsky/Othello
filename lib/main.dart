@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'my_component.dart';
 
 import  'login.dart';
@@ -19,7 +20,9 @@ import 'register.dart';
 /// The buttons use context.go() to navigate to each destination. On mobile
 /// devices, each destination is deep-linkable and on the web, can be navigated
 /// to using the address bar.
-void main() => runApp(const MyApp());
+void main() async {
+  runApp(const MyApp());
+}
 
 /// The route configuration.
 final GoRouter _router = GoRouter(

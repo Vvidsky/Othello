@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'my_component.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'utils/fire_auth.dart';
+
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -10,7 +14,17 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final _formKey = GlobalKey<FormState>();
+  final _registerFormKey = GlobalKey<FormState>();
+
+  final _nameTextController = TextEditingController();
+  final _emailTextController = TextEditingController();
+  final _passwordTextController = TextEditingController();
+
+  final _focusName = FocusNode();
+  final _focusEmail = FocusNode();
+  final _focusPassword = FocusNode();
+
+  bool _isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -56,13 +70,15 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: Column(
                     children: <Widget>[
                       Form(
-                          key: _formKey,
+                          key: _registerFormKey,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               const Text('Username',
                                   style: TextStyle(fontSize: 16)),
                               TextFormField(
+                                controller: _nameTextController,
+                                focusNode: _focusName,
                                 // The validator receives the text that the user has entered.
                                 decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
@@ -83,6 +99,8 @@ class _RegisterPageState extends State<RegisterPage> {
                               const Text('Email',
                                   style: TextStyle(fontSize: 16)),
                               TextFormField(
+                                controller: _emailTextController,
+                                focusNode: _focusEmail,
                                 // The validator receives the text that the user has entered.
                                 decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
@@ -104,6 +122,8 @@ class _RegisterPageState extends State<RegisterPage> {
                               const Text('Password',
                                   style: TextStyle(fontSize: 16)),
                               TextFormField(
+                                controller: _passwordTextController,
+                                focusNode: _focusPassword,
                                 // The validator receives the text that the user has entered.
                                 obscureText: true,
                                 decoration: const InputDecoration(
@@ -128,7 +148,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                     alignment: Alignment.center,
                                     child: ElevatedButton(
                                       style: ButtonStyle(
-                                        backgroundColor: MaterialStateProperty.all(Colors.black),
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                Colors.black),
                                         minimumSize: MaterialStateProperty.all(
                                             const Size(150, 40)),
                                         shape: MaterialStatePropertyAll(
@@ -136,9 +158,27 @@ class _RegisterPageState extends State<RegisterPage> {
                                                 borderRadius:
                                                     BorderRadius.circular(10))),
                                       ),
-                                      onPressed: () {
+                                      onPressed: ()  async {
+                                        setState(() {
+                                        _isProcessing = true;
+                                      });
+
+                                      if (_registerFormKey.currentState!
+                                          .validate()) {
+                                        User? user = await FireAuth
+                                            .registerUsingEmailPassword(
+                                          name: _nameTextController.text,
+                                          email: _emailTextController.text,
+                                          password:
+                                              _passwordTextController.text,
+                                        );
+
+                                        setState(() {
+                                          _isProcessing = false;
+                                        });
+
                                         // Validate returns true if the form is valid, or false otherwise.
-                                        if (_formKey.currentState!.validate()) {
+                                        if (_registerFormKey.currentState!.validate()) {
                                           // If the form is valid, display a snackbar. In the real world,
                                           // you'd often call a server or save the information in a database.
                                           ScaffoldMessenger.of(context)
@@ -148,7 +188,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                                     Text('Processing Data')),
                                           );
                                         }
-                                      },
+                                      }},
                                       child: const Text('Register'),
                                     ),
                                   )),
