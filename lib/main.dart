@@ -2,25 +2,36 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'my_component.dart';
 
-import  'login.dart';
+import 'login.dart';
 import 'game.dart';
 import 'register.dart';
+import 'user_main_page.dart';
+import 'how_to_play.dart';
 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    if (kDebugMode) {
+      print('User is currently signed out!');
+    }
+  } else {
+    if (kDebugMode) {
+      print('User is signed in!');
+    }
+  }
 
-/// This sample app shows an app with two screens.
-///
-/// The first route '/' is mapped to [HomeScreen], and the second route
-/// '/details' is mapped to [DetailsScreen].
-///
-/// The buttons use context.go() to navigate to each destination. On mobile
-/// devices, each destination is deep-linkable and on the web, can be navigated
-/// to using the address bar.
-void main() async {
   runApp(const MyApp());
 }
 
@@ -32,27 +43,68 @@ final GoRouter _router = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         return const HomeScreen();
       },
-      routes: <RouteBase>[
-        GoRoute(
-          path: 'register',
+      redirect: (BuildContext context, GoRouterState state) {
+        if (FirebaseAuth.instance.currentUser == null && state.location == '/') {
+          return null;
+        } else {
+          return '/users/${FirebaseAuth.instance.currentUser?.uid}';
+        }
+      },
+    ),
+    GoRoute(
+          path: '/register',
           builder: (BuildContext context, GoRouterState state) {
             return const RegisterPage();
           },
         ),
         GoRoute(
-          path: 'login',
-          builder: (BuildContext context, GoRouterState state) {
-            return const LoginPage();
-          },
-        ),
+            path: '/login',
+            builder: (BuildContext context, GoRouterState state) {
+              return const LoginPage();
+            },
+            redirect: (BuildContext context, GoRouterState state) {
+              if (FirebaseAuth.instance.currentUser == null) {
+                return '/login';
+              } else {
+                return '/users/${FirebaseAuth.instance.currentUser?.uid}';
+              }
+            }),
         GoRoute(
-          path: 'game',
-          builder: (BuildContext context, GoRouterState state) {
-            return GamePage("game");
-          },
-        ),
-      ],
-    ),
+            path: '/users/:userId',
+            builder: (BuildContext context, GoRouterState state) {
+              return const UserMainPage();
+            },
+            redirect: (BuildContext context, GoRouterState state) {
+              if (FirebaseAuth.instance.currentUser == null) {
+                return '/login';
+              } else {
+                return null;
+              }
+            }),
+        GoRoute(
+            path: '/game',
+            builder: (BuildContext context, GoRouterState state) {
+              return const GamePage("game");
+            },
+            redirect: (BuildContext context, GoRouterState state) {
+              if (FirebaseAuth.instance.currentUser == null) {
+                return '/login';
+              } else {
+                return null;
+              }
+            }),
+        GoRoute(
+            path: '/howtoplay',
+            builder: (BuildContext context, GoRouterState state) {
+              return HowToPlay();
+            },
+            redirect: (BuildContext context, GoRouterState state) {
+              if (FirebaseAuth.instance.currentUser == null) {
+                return '/login';
+              } else {
+                return null;
+              }
+            }),
   ],
 );
 
@@ -93,8 +145,7 @@ class HomeScreen extends StatelessWidget {
                 onPressed: () => context.go('/register'),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.black),
-                  minimumSize:
-                      MaterialStateProperty.all(const Size(240, 60)),
+                  minimumSize: MaterialStateProperty.all(const Size(240, 60)),
                   shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10))),
                 ),
@@ -117,31 +168,6 @@ class HomeScreen extends StatelessWidget {
                       'Login',
                       style: TextStyle(fontSize: 20),
                     ))),
-          ],
-        ),
-      ),
-    );
-  }
-
-}
-
-/// The details screen
-class DetailsScreen extends StatelessWidget {
-  /// Constructs a [DetailsScreen]
-  const DetailsScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Details Screen')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <ElevatedButton>[
-            ElevatedButton(
-              onPressed: () => context.go('/'),
-              child: const Text('Go back to the Home screen'),
-            ),
           ],
         ),
       ),

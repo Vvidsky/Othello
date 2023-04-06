@@ -37,22 +37,26 @@ class _MyHomePageState extends State<GamePage> {
   int countItemWhite = 0;
   int countItemBlack = 0;
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-          color: Color(0xfffbf9f3),
-          child: Center(
-            child: Container(
-                decoration: BoxDecoration(
-                    color: Color(0xff34495e),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(width: 6, color: Color(0xff2c3e50))),
-                child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: buildTable()
-                )),
-          )),
+          color: Color(0xffecf0f1),
+          child: Column(children: <Widget>[
+            buildMenu(),
+            Expanded(child: Center(
+              child: Container(
+                  decoration: BoxDecoration(
+                      color: Color(0xff34495e),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(width: 8, color: Color(0xff2c3e50))),
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: buildTable()
+                  )),
+            )),
+            buildScoreTab()
+          ])),
     );
   }
 
@@ -69,6 +73,41 @@ class _MyHomePageState extends State<GamePage> {
     return listRow;
   }
 
+    Container buildMenu() {
+    return Container(
+      padding: EdgeInsets.only(top: 36, bottom: 12, left: 16, right: 16),
+      color: Color(0xff34495e),
+      child:
+      Row(mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            GestureDetector(onTap: () {
+              restart();
+            },
+                child: Container(constraints: BoxConstraints(minWidth: 120),
+                    decoration: BoxDecoration(color: Color(0xff27ae60),
+                        borderRadius: BorderRadius.circular(4)),
+                    padding: EdgeInsets.all(12),
+                    child: Column(children: <Widget>[
+                      Text("New Game", style: TextStyle(fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white))
+                    ]))),
+            Expanded(child: Container()),
+            Container(constraints: BoxConstraints(minWidth: 120),
+                decoration: BoxDecoration(color: Color(0xffbbada0),
+                    borderRadius: BorderRadius.circular(4)),
+                padding: EdgeInsets.all(8),
+                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+                  Text("TURN", style: TextStyle(fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
+                  Container(margin: EdgeInsets.only(left: 8), child:
+                  buildItem(BlockUnit(value: currentTurn)))
+                ]))
+          ]),
+    );
+  }
+
   Widget buildBlockUnit(int row, int col) {
     return GestureDetector(
         onTap: () {
@@ -77,12 +116,12 @@ class _MyHomePageState extends State<GamePage> {
           });
         }, child: Container(
       decoration: BoxDecoration(
-        color: Color(0xff27ae60),
+        color: const Color(0xff27ae60),
         borderRadius: BorderRadius.circular(2),
       ),
       width: BLOCK_SIZE,
       height: BLOCK_SIZE,
-      margin: EdgeInsets.all(2),
+      margin: const EdgeInsets.all(2),
       child: Center(child: buildItem(table[row][col])),
     ));
   }
@@ -90,12 +129,35 @@ class _MyHomePageState extends State<GamePage> {
   Widget buildItem(BlockUnit block){
     if(block.value == ITEM_BLACK){
       return Container(width: 30, height: 30,
-          decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black));
+          decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.black));
     }else if(block.value == ITEM_WHITE){
       return Container(width: 30, height: 30,
-          decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white));
+          decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white));
     }
     return Container();
+  }
+
+    Widget buildScoreTab() {
+    return Row(mainAxisSize: MainAxisSize.max, children: <Widget>[
+      Expanded(child: Container(color: const Color(0xff34495e),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(padding: const EdgeInsets.all(16),
+                    child: buildItem(BlockUnit(value: ITEM_WHITE))),
+                Text("x $countItemWhite", style: const TextStyle(fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white))
+              ]))),
+      Expanded(child: Container(color: const Color(0xffbdc3c7),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(padding: const EdgeInsets.all(16),
+                    child: buildItem(BlockUnit(value: ITEM_BLACK))),
+                Text("x $countItemBlack", style: const TextStyle(fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black))
+              ])))
+    ]);
   }
 
    @override

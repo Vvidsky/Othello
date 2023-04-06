@@ -3,13 +3,18 @@ import 'package:go_router/go_router.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:othello/user_main_page.dart';
+
+import 'utils/fire_auth.dart';
 import 'my_component.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPage();
+  State<LoginPage> createState() {
+    return _LoginPage();
+  }
 }
 
 class _LoginPage extends State<LoginPage> {
@@ -21,8 +26,16 @@ class _LoginPage extends State<LoginPage> {
   final _focusEmail = FocusNode();
   final _focusPassword = FocusNode();
 
+  bool _isProcessing = false;
+
   Future<FirebaseApp> _initializeFirebase() async {
     FirebaseApp firebaseApp = await Firebase.initializeApp();
+
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      context.go('/users/${user.uid}');
+    }
+
     return firebaseApp;
   }
 
@@ -56,7 +69,7 @@ class _LoginPage extends State<LoginPage> {
                       color: Colors.white,
                     ),
                     const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24)),
+                        padding: EdgeInsets.symmetric(horizontal: 36)),
                     const Text(
                       'Login',
                       textAlign: TextAlign.center,
@@ -146,20 +159,32 @@ class _LoginPage extends State<LoginPage> {
                                                         BorderRadius.circular(
                                                             10))),
                                           ),
-                                          onPressed: () {
+                                          onPressed: () async {
                                             _focusEmail.unfocus();
                                             _focusPassword.unfocus();
-                                            // Validate returns true if the form is valid, or false otherwise.
+
                                             if (_formKey.currentState!
                                                 .validate()) {
-                                              // If the form is valid, display a snackbar. In the real world,
-                                              // you'd often call a server or save the information in a database.
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                    content: Text(
-                                                        'Processing Data')),
+                                              setState(() {
+                                                _isProcessing = true;
+                                              });
+
+                                              User? user = await FireAuth
+                                                  .signInUsingEmailPassword(
+                                                email:
+                                                    _emailTextController.text,
+                                                password:
+                                                    _passwordTextController
+                                                        .text,
                                               );
+
+                                              setState(() {
+                                                _isProcessing = false;
+                                              });
+
+                                              if (user != null) {
+                                                context.go('/users/${user.uid}');
+                                              }
                                             }
                                           },
                                           child: const Text('Login'),

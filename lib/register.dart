@@ -6,6 +6,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'utils/fire_auth.dart';
 
+import 'user_main_page.dart';
+
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -177,16 +179,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                           _isProcessing = false;
                                         });
 
-                                        // Validate returns true if the form is valid, or false otherwise.
-                                        if (_registerFormKey.currentState!.validate()) {
-                                          // If the form is valid, display a snackbar. In the real world,
-                                          // you'd often call a server or save the information in a database.
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                                content:
-                                                    Text('Processing Data')),
-                                          );
+                                        if (user != null) {
+                                          context.go('/users/${user.uid}');
                                         }
                                       }},
                                       child: const Text('Register'),
