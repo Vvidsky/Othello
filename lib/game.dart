@@ -40,15 +40,15 @@ class _MyHomePageState extends State<GamePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-          color: Color(0xffecf0f1),
+          color: const Color(0xffecf0f1),
           child: Column(children: <Widget>[
             buildMenu(),
             Expanded(child: Center(
               child: Container(
                   decoration: BoxDecoration(
-                      color: Color(0xff34495e),
+                      color: const Color(0xff34495e),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(width: 8, color: Color(0xff2c3e50))),
+                      border: Border.all(width: 8, color: const Color(0xff2c3e50))),
                   child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -75,33 +75,33 @@ class _MyHomePageState extends State<GamePage> {
 
     Container buildMenu() {
     return Container(
-      padding: EdgeInsets.only(top: 36, bottom: 12, left: 16, right: 16),
-      color: Color(0xff34495e),
+      padding: const EdgeInsets.only(top: 36, bottom: 12, left: 16, right: 16),
+      color: const Color(0xff34495e),
       child:
       Row(mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             GestureDetector(onTap: () {
               restart();
             },
-                child: Container(constraints: BoxConstraints(minWidth: 120),
-                    decoration: BoxDecoration(color: Color(0xff27ae60),
+                child: Container(constraints: const BoxConstraints(minWidth: 120),
+                    decoration: BoxDecoration(color: const Color(0xff27ae60),
                         borderRadius: BorderRadius.circular(4)),
-                    padding: EdgeInsets.all(12),
-                    child: Column(children: <Widget>[
+                    padding: const EdgeInsets.all(12),
+                    child: Column(children: const <Widget>[
                       Text("New Game", style: TextStyle(fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: Colors.white))
                     ]))),
             Expanded(child: Container()),
-            Container(constraints: BoxConstraints(minWidth: 120),
-                decoration: BoxDecoration(color: Color(0xffbbada0),
+            Container(constraints: const BoxConstraints(minWidth: 120),
+                decoration: BoxDecoration(color: const Color(0xffbbada0),
                     borderRadius: BorderRadius.circular(4)),
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-                  Text("TURN", style: TextStyle(fontSize: 16,
+                  const Text("TURN", style: TextStyle(fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white)),
-                  Container(margin: EdgeInsets.only(left: 8), child:
+                  Container(margin: const EdgeInsets.only(left: 8), child:
                   buildItem(BlockUnit(value: currentTurn)))
                 ]))
           ]),
