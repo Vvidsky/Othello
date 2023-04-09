@@ -7,6 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:othello/game_room.dart';
+import 'package:othello/room_list.dart';
+import 'package:othello/test_multiplayer.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'firebase_options.dart';
 import 'my_component.dart';
 
@@ -44,7 +48,8 @@ final GoRouter _router = GoRouter(
         return const HomeScreen();
       },
       redirect: (BuildContext context, GoRouterState state) {
-        if (FirebaseAuth.instance.currentUser == null && state.location == '/') {
+        if (FirebaseAuth.instance.currentUser == null &&
+            state.location == '/') {
           return null;
         } else {
           return '/users/${FirebaseAuth.instance.currentUser?.uid}';
@@ -52,59 +57,80 @@ final GoRouter _router = GoRouter(
       },
     ),
     GoRoute(
-          path: '/register',
-          builder: (BuildContext context, GoRouterState state) {
-            return const RegisterPage();
-          },
-        ),
-        GoRoute(
-            path: '/login',
-            builder: (BuildContext context, GoRouterState state) {
-              return const LoginPage();
-            },
-            redirect: (BuildContext context, GoRouterState state) {
-              if (FirebaseAuth.instance.currentUser == null) {
-                return '/login';
-              } else {
-                return '/users/${FirebaseAuth.instance.currentUser?.uid}';
-              }
-            }),
-        GoRoute(
-            path: '/users/:userId',
-            builder: (BuildContext context, GoRouterState state) {
-              return const UserMainPage();
-            },
-            redirect: (BuildContext context, GoRouterState state) {
-              if (FirebaseAuth.instance.currentUser == null) {
-                return '/login';
-              } else {
-                return null;
-              }
-            }),
-        GoRoute(
-            path: '/game',
-            builder: (BuildContext context, GoRouterState state) {
-              return const GamePage("game");
-            },
-            redirect: (BuildContext context, GoRouterState state) {
-              if (FirebaseAuth.instance.currentUser == null) {
-                return '/login';
-              } else {
-                return null;
-              }
-            }),
-        GoRoute(
-            path: '/howtoplay',
-            builder: (BuildContext context, GoRouterState state) {
-              return HowToPlay();
-            },
-            redirect: (BuildContext context, GoRouterState state) {
-              if (FirebaseAuth.instance.currentUser == null) {
-                return '/login';
-              } else {
-                return null;
-              }
-            }),
+      path: '/register',
+      builder: (BuildContext context, GoRouterState state) {
+        return const RegisterPage();
+      },
+    ),
+    GoRoute(
+        path: '/login',
+        builder: (BuildContext context, GoRouterState state) {
+          return const LoginPage();
+        },
+        redirect: (BuildContext context, GoRouterState state) {
+          if (FirebaseAuth.instance.currentUser == null) {
+            return '/login';
+          } else {
+            return '/users/${FirebaseAuth.instance.currentUser?.uid}';
+          }
+        }),
+    GoRoute(
+        path: '/users/:userId',
+        builder: (BuildContext context, GoRouterState state) {
+          return const UserMainPage();
+        },
+        redirect: (BuildContext context, GoRouterState state) {
+          if (FirebaseAuth.instance.currentUser == null) {
+            return '/login';
+          } else {
+            return null;
+          }
+        }),
+    GoRoute(
+        path: '/game',
+        builder: (BuildContext context, GoRouterState state) {
+          return const GamePage("game");
+        },
+        redirect: (BuildContext context, GoRouterState state) {
+          if (FirebaseAuth.instance.currentUser == null) {
+            return '/login';
+          } else {
+            return null;
+          }
+        }),
+    GoRoute(
+        path: '/howtoplay',
+        builder: (BuildContext context, GoRouterState state) {
+          return HowToPlay();
+        },
+        redirect: (BuildContext context, GoRouterState state) {
+          if (FirebaseAuth.instance.currentUser == null) {
+            return '/login';
+          } else {
+            return null;
+          }
+        }),
+    GoRoute(
+        path: '/testgame',
+        builder: (BuildContext context, GoRouterState state) {
+          return TicTacToeBoard(
+              gameRef: FirebaseDatabase.instance.ref().child('games').push(),
+              player: Player('Alice', 'X'));
+        }),
+    GoRoute(
+      path: '/rooms',
+      builder: (BuildContext context, GoRouterState state) {
+        return RoomList();
+      },
+    ),
+    GoRoute(
+      path: '/rooms/:roomid',
+      builder: (BuildContext context, GoRouterState state) {
+        return GameRoom(
+          roomid: state.params['roomid']!,
+        );
+      },
+    ),
   ],
 );
 

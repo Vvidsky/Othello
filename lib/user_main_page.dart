@@ -57,7 +57,7 @@ class UserMainPage extends StatelessWidget {
             Container(
                 margin: const EdgeInsets.only(top: 20),
                 child: ElevatedButton(
-                    onPressed: () => context.go('/login'),
+                    onPressed: () => context.go('/rooms'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.black),
                       minimumSize:

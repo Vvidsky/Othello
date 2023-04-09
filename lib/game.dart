@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class GamePage extends StatefulWidget {
@@ -9,29 +10,30 @@ class GamePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class BlockUnit{
+class BlockUnit {
   int value;
 
   BlockUnit({this.value = 0});
+
+  dynamic toJson() => {
+        'value': value,
+      };
 }
 
-class Coordinate{
+class Coordinate {
   int row;
   int col;
 
   Coordinate({required this.row, required this.col});
 }
 
-  
-
 const double BLOCK_SIZE = 40;
 const int ITEM_EMPTY = 0;
 const int ITEM_WHITE = 1;
 const int ITEM_BLACK = 2;
 
-
 class _MyHomePageState extends State<GamePage> {
-
+  final databaseReference = FirebaseDatabase.instance.ref();
   List<List<BlockUnit>> table = [];
   int currentTurn = ITEM_BLACK;
   int countItemWhite = 0;
@@ -43,17 +45,18 @@ class _MyHomePageState extends State<GamePage> {
           color: const Color(0xffecf0f1),
           child: Column(children: <Widget>[
             buildMenu(),
-            Expanded(child: Center(
+            Expanded(
+                child: Center(
               child: Container(
                   decoration: BoxDecoration(
                       color: const Color(0xff34495e),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(width: 8, color: const Color(0xff2c3e50))),
+                      border:
+                          Border.all(width: 8, color: const Color(0xff2c3e50))),
                   child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: buildTable()
-                  )),
+                      children: buildTable())),
             )),
             buildScoreTab()
           ])),
@@ -73,38 +76,49 @@ class _MyHomePageState extends State<GamePage> {
     return listRow;
   }
 
-    Container buildMenu() {
+  Container buildMenu() {
     return Container(
       padding: const EdgeInsets.only(top: 36, bottom: 12, left: 16, right: 16),
       color: const Color(0xff34495e),
       child:
-      Row(mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            GestureDetector(onTap: () {
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+        GestureDetector(
+            onTap: () {
               restart();
             },
-                child: Container(constraints: const BoxConstraints(minWidth: 120),
-                    decoration: BoxDecoration(color: const Color(0xff27ae60),
-                        borderRadius: BorderRadius.circular(4)),
-                    padding: const EdgeInsets.all(12),
-                    child: Column(children: const <Widget>[
-                      Text("New Game", style: TextStyle(fontSize: 22,
+            child: Container(
+                constraints: const BoxConstraints(minWidth: 120),
+                decoration: BoxDecoration(
+                    color: const Color(0xff27ae60),
+                    borderRadius: BorderRadius.circular(4)),
+                padding: const EdgeInsets.all(12),
+                child: Column(children: const <Widget>[
+                  Text("New Game",
+                      style: TextStyle(
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: Colors.white))
-                    ]))),
-            Expanded(child: Container()),
-            Container(constraints: const BoxConstraints(minWidth: 120),
-                decoration: BoxDecoration(color: const Color(0xffbbada0),
-                    borderRadius: BorderRadius.circular(4)),
-                padding: const EdgeInsets.all(8),
-                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-                  const Text("TURN", style: TextStyle(fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-                  Container(margin: const EdgeInsets.only(left: 8), child:
-                  buildItem(BlockUnit(value: currentTurn)))
+                ]))),
+        Expanded(child: Container()),
+        Container(
+            constraints: const BoxConstraints(minWidth: 120),
+            decoration: BoxDecoration(
+                color: const Color(0xffbbada0),
+                borderRadius: BorderRadius.circular(4)),
+            padding: const EdgeInsets.all(8),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text("TURN",
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
+                  Container(
+                      margin: const EdgeInsets.only(left: 8),
+                      child: buildItem(BlockUnit(value: currentTurn)))
                 ]))
-          ]),
+      ]),
     );
   }
 
@@ -114,53 +128,72 @@ class _MyHomePageState extends State<GamePage> {
           setState(() {
             pasteItemToTable(row, col, currentTurn);
           });
-        }, child: Container(
-      decoration: BoxDecoration(
-        color: const Color(0xff27ae60),
-        borderRadius: BorderRadius.circular(2),
-      ),
-      width: BLOCK_SIZE,
-      height: BLOCK_SIZE,
-      margin: const EdgeInsets.all(2),
-      child: Center(child: buildItem(table[row][col])),
-    ));
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xff27ae60),
+            borderRadius: BorderRadius.circular(2),
+          ),
+          width: BLOCK_SIZE,
+          height: BLOCK_SIZE,
+          margin: const EdgeInsets.all(2),
+          child: Center(child: buildItem(table[row][col])),
+        ));
   }
 
-  Widget buildItem(BlockUnit block){
-    if(block.value == ITEM_BLACK){
-      return Container(width: 30, height: 30,
-          decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.black));
-    }else if(block.value == ITEM_WHITE){
-      return Container(width: 30, height: 30,
-          decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white));
+  Widget buildItem(BlockUnit block) {
+    if (block.value == ITEM_BLACK) {
+      return Container(
+          width: 30,
+          height: 30,
+          decoration:
+              const BoxDecoration(shape: BoxShape.circle, color: Colors.black));
+    } else if (block.value == ITEM_WHITE) {
+      return Container(
+          width: 30,
+          height: 30,
+          decoration:
+              const BoxDecoration(shape: BoxShape.circle, color: Colors.white));
     }
     return Container();
   }
 
-    Widget buildScoreTab() {
+  Widget buildScoreTab() {
     return Row(mainAxisSize: MainAxisSize.max, children: <Widget>[
-      Expanded(child: Container(color: const Color(0xff34495e),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(padding: const EdgeInsets.all(16),
-                    child: buildItem(BlockUnit(value: ITEM_WHITE))),
-                Text("x $countItemWhite", style: const TextStyle(fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white))
-              ]))),
-      Expanded(child: Container(color: const Color(0xffbdc3c7),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(padding: const EdgeInsets.all(16),
-                    child: buildItem(BlockUnit(value: ITEM_BLACK))),
-                Text("x $countItemBlack", style: const TextStyle(fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black))
-              ])))
+      Expanded(
+          child: Container(
+              color: const Color(0xff34495e),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                        padding: const EdgeInsets.all(16),
+                        child: buildItem(BlockUnit(value: ITEM_WHITE))),
+                    Text("x $countItemWhite",
+                        style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white))
+                  ]))),
+      Expanded(
+          child: Container(
+              color: const Color(0xffbdc3c7),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                        padding: const EdgeInsets.all(16),
+                        child: buildItem(BlockUnit(value: ITEM_BLACK))),
+                    Text("x $countItemBlack",
+                        style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black))
+                  ])))
     ]);
   }
 
-   @override
+  @override
   void initState() {
     initTable();
     initTableItems();
@@ -175,9 +208,12 @@ class _MyHomePageState extends State<GamePage> {
         list.add(BlockUnit(value: ITEM_EMPTY));
       }
       table.add(list);
+      for (BlockUnit blockunit in list) {
+        FirebaseDatabase.instance.ref('GameRooms').child('TestRoom').push().set(blockunit.toJson());
+      }
     }
-  } 
-  
+  }
+
   void initTableItems() {
     table[3][3].value = ITEM_WHITE;
     table[4][3].value = ITEM_BLACK;
@@ -185,7 +221,7 @@ class _MyHomePageState extends State<GamePage> {
     table[4][4].value = ITEM_WHITE;
   }
 
-     bool pasteItemToTable(int row, int col, int item) {
+  bool pasteItemToTable(int row, int col, int item) {
     if (table[row][col].value == ITEM_EMPTY) {
       List<Coordinate> listCoordinate = [];
       listCoordinate.addAll(checkRight(row, col, item));
@@ -390,5 +426,4 @@ class _MyHomePageState extends State<GamePage> {
       initTableItems();
     });
   }
-
 }
