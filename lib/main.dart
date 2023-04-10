@@ -11,6 +11,7 @@ import 'package:othello/game_room.dart';
 import 'package:othello/room_list.dart';
 import 'package:othello/test_multiplayer.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:othello/test_syncstate.dart';
 import 'firebase_options.dart';
 import 'my_component.dart';
 
@@ -127,6 +128,14 @@ final GoRouter _router = GoRouter(
       path: '/rooms/:roomid',
       builder: (BuildContext context, GoRouterState state) {
         return GameRoom(
+          roomid: state.params['roomid']!,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/testroom/:roomid',
+      builder: (BuildContext context, GoRouterState state) {
+        return SyncState(
           roomid: state.params['roomid']!,
         );
       },

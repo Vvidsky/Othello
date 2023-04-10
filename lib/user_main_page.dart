@@ -43,7 +43,7 @@ class UserMainPage extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 64.0),
             ),
             ElevatedButton(
-                onPressed: () => context.go('/game'),
+                onPressed: () => context.go('/rooms/test_room'),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.black),
                   minimumSize: MaterialStateProperty.all(const Size(240, 60)),
