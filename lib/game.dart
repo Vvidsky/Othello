@@ -208,9 +208,7 @@ class _MyHomePageState extends State<GamePage> {
         list.add(BlockUnit(value: ITEM_EMPTY));
       }
       table.add(list);
-      for (BlockUnit blockunit in list) {
-        FirebaseDatabase.instance.ref('GameRooms').child('TestRoom').push().set(blockunit.toJson());
-      }
+
     }
   }
 

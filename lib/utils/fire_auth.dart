@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class FireAuth {
   // For registering a new user
@@ -15,6 +17,10 @@ class FireAuth {
         email: email,
         password: password,
       );
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(userCredential.user!.uid)
+          .set({"name": name, "email": email, "createdAt":DateTime.now()});
 
       user = userCredential.user;
       await user!.updateDisplayName(name);
@@ -22,6 +28,7 @@ class FireAuth {
       user = auth.currentUser;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
+        
         print('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
         print('The account already exists for that email.');
@@ -37,6 +44,7 @@ class FireAuth {
   static Future<User?> signInUsingEmailPassword({
     required String email,
     required String password,
+    BuildContext? context
   }) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
@@ -49,8 +57,10 @@ class FireAuth {
       user = userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
+        ScaffoldMessenger.of(context!).showSnackBar(const SnackBar(content: Text('No user found for that email.')));
         print('No user found for that email.');
       } else if (e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context!).showSnackBar(const SnackBar(content: Text('Wrong password provided.')));
         print('Wrong password provided.');
       }
     }

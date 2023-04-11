@@ -31,7 +31,7 @@ class MyRouter {
         GoRoute(
             path: 'users/:userId',
             builder: (BuildContext context, GoRouterState state) {
-              return const UserMainPage();
+              return UserMainPage();
             },
             redirect: (BuildContext context, GoRouterState state) {
               if (FirebaseAuth.instance.currentUser == null) {

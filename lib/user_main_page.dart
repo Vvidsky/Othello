@@ -1,33 +1,19 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:othello/login.dart';
 import 'my_component.dart';
 
+class UserMainPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _UserMainPage();
+  }
+}
 
-// class UserMainPage extends StatelessWidget {
-//   const UserMainPage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: StreamBuilder<User?>(
-//         stream: FirebaseAuth.instance.authStateChanges(),
-//         builder: (context, snapshot) {
-//           if(snapshot.hasData) {
-//             return _UserMainPage();
-//           } else {
-//             return const LoginPage();
-//           }
-//         },
-//       )
-//     );
-//   }
-// }
-
-class UserMainPage extends StatelessWidget {
-  const UserMainPage({super.key});
-
+class _UserMainPage extends State<UserMainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +29,7 @@ class UserMainPage extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 64.0),
             ),
             ElevatedButton(
-                onPressed: () => context.go('/rooms/test_room'),
+                onPressed: () => context.push('/rooms/test_room'),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.black),
                   minimumSize: MaterialStateProperty.all(const Size(240, 60)),
@@ -57,7 +43,7 @@ class UserMainPage extends StatelessWidget {
             Container(
                 margin: const EdgeInsets.only(top: 20),
                 child: ElevatedButton(
-                    onPressed: () => context.go('/rooms'),
+                    onPressed: () => context.push('/rooms'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.black),
                       minimumSize:
@@ -69,10 +55,10 @@ class UserMainPage extends StatelessWidget {
                       'Join room',
                       style: TextStyle(fontSize: 20),
                     ))),
-                  Container(
+            Container(
                 margin: const EdgeInsets.only(top: 20),
                 child: ElevatedButton(
-                    onPressed: () => context.go('/howtoplay'),
+                    onPressed: () => context.push('/howtoplay'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.white),
                       minimumSize:
@@ -84,12 +70,13 @@ class UserMainPage extends StatelessWidget {
                       'How to Play?',
                       style: TextStyle(fontSize: 20, color: Colors.black),
                     ))),
-                    Container(
+            Container(
                 margin: const EdgeInsets.only(top: 20),
                 child: ElevatedButton(
                     onPressed: () {
-                      FirebaseAuth.instance.signOut();
-                      context.go('/');
+                      FirebaseAuth.instance.signOut().then((value) {
+                        context.go('/');
+                      });
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.black),
@@ -102,9 +89,39 @@ class UserMainPage extends StatelessWidget {
                       'Logout',
                       style: TextStyle(fontSize: 20),
                     ))),
+            Expanded(
+              child: Align(
+                alignment: FractionalOffset.bottomCenter,
+                child: MaterialButton(
+                  onPressed: () => {},
+                  child: FutureBuilder<String>(
+                      future: getUserName(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<String> snapshot) {
+                        if (snapshot.hasData) {
+                          return Text("Logged in as ${snapshot.data!}");
+                        } else {
+                          return const Text("Loading...");
+                        }
+                      }),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<String> getUserName() async {
+    var userCollection = FirebaseFirestore.instance.collection('/users');
+    if (FirebaseAuth.instance.currentUser != null) {
+      return userCollection
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get()
+          .then((value) => value['name']);
+    } else {
+      return "";
+    }
   }
 }

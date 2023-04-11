@@ -53,7 +53,7 @@ GoRouter routerGenerator(LoggedInStateInfo loggedInState) {
         GoRoute(
           path: 'users/:userId',
           builder: (BuildContext context, GoRouterState state) {
-            return const UserMainPage();
+            return UserMainPage();
           },
         ),
         GoRoute(
