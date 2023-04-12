@@ -208,7 +208,6 @@ class _MyHomePageState extends State<GamePage> {
         list.add(BlockUnit(value: ITEM_EMPTY));
       }
       table.add(list);
-
     }
   }
 

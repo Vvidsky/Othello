@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:othello/game_room.dart';
 import 'package:othello/room_list.dart';
+import 'package:othello/router/my_router.dart';
 import 'package:othello/test_multiplayer.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:othello/test_syncstate.dart';
@@ -36,112 +37,8 @@ Future<void> main() async {
       print('User is signed in!');
     }
   }
-
   runApp(const MyApp());
 }
-
-/// The route configuration.
-final GoRouter _router = GoRouter(
-  routes: <RouteBase>[
-    GoRoute(
-      path: '/',
-      builder: (BuildContext context, GoRouterState state) {
-        return const HomeScreen();
-      },
-      redirect: (BuildContext context, GoRouterState state) {
-        if (FirebaseAuth.instance.currentUser == null &&
-            state.location == '/') {
-          return null;
-        } else {
-          return '/users/${FirebaseAuth.instance.currentUser?.uid}';
-        }
-      },
-    ),
-    GoRoute(
-      path: '/register',
-      builder: (BuildContext context, GoRouterState state) {
-        return const RegisterPage();
-      },
-    ),
-    GoRoute(
-        path: '/login',
-        builder: (BuildContext context, GoRouterState state) {
-          return const LoginPage();
-        },
-        redirect: (BuildContext context, GoRouterState state) {
-          if (FirebaseAuth.instance.currentUser == null) {
-            return '/login';
-          } else {
-            return '/users/${FirebaseAuth.instance.currentUser?.uid}';
-          }
-        }),
-    GoRoute(
-        path: '/users/:userId',
-        builder: (BuildContext context, GoRouterState state) {
-          return UserMainPage();
-        },
-        redirect: (BuildContext context, GoRouterState state) {
-          if (FirebaseAuth.instance.currentUser == null) {
-            return '/login';
-          } else {
-            return null;
-          }
-        }),
-    GoRoute(
-        path: '/game',
-        builder: (BuildContext context, GoRouterState state) {
-          return const GamePage("game");
-        },
-        redirect: (BuildContext context, GoRouterState state) {
-          if (FirebaseAuth.instance.currentUser == null) {
-            return '/login';
-          } else {
-            return null;
-          }
-        }),
-    GoRoute(
-        path: '/howtoplay',
-        builder: (BuildContext context, GoRouterState state) {
-          return HowToPlay();
-        },
-        redirect: (BuildContext context, GoRouterState state) {
-          if (FirebaseAuth.instance.currentUser == null) {
-            return '/login';
-          } else {
-            return null;
-          }
-        }),
-    GoRoute(
-        path: '/testgame',
-        builder: (BuildContext context, GoRouterState state) {
-          return TicTacToeBoard(
-              gameRef: FirebaseDatabase.instance.ref().child('games').push(),
-              player: Player('Alice', 'X'));
-        }),
-    GoRoute(
-      path: '/rooms',
-      builder: (BuildContext context, GoRouterState state) {
-        return RoomList();
-      },
-    ),
-    GoRoute(
-      path: '/rooms/:roomid',
-      builder: (BuildContext context, GoRouterState state) {
-        return GameRoom(
-          roomid: state.params['roomid']!,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/testroom/:roomid',
-      builder: (BuildContext context, GoRouterState state) {
-        return SyncState(
-          roomid: state.params['roomid']!,
-        );
-      },
-    ),
-  ],
-);
 
 /// The main app.
 class MyApp extends StatelessWidget {
@@ -151,7 +48,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _router,
+      routerConfig: MyRouter.returnRouter(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -161,6 +58,8 @@ class MyApp extends StatelessWidget {
 class HomeScreen extends StatelessWidget {
   /// Constructs a [HomeScreen]
   const HomeScreen({Key? key}) : super(key: key);
+  static String get routeName => 'homescreen';
+  static String get routeLocation => '/';
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +76,7 @@ class HomeScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 64.0),
             ),
             ElevatedButton(
-                onPressed: () => context.go('/register'),
+                onPressed: () => context.push('/register'),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.black),
                   minimumSize: MaterialStateProperty.all(const Size(240, 60)),
@@ -191,7 +90,7 @@ class HomeScreen extends StatelessWidget {
             Container(
                 margin: const EdgeInsets.only(top: 20),
                 child: ElevatedButton(
-                    onPressed: () => context.go('/login'),
+                    onPressed: () => context.push('/login'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.black),
                       minimumSize:

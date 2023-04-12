@@ -1,6 +1,7 @@
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:go_router/go_router.dart';
 
 class RoomList extends StatefulWidget {
   const RoomList({super.key});
@@ -26,13 +27,13 @@ class _RoomListState extends State<RoomList> {
             }
             Map devTeam = snapshot.value as Map;
             devTeam['key'] = snapshot.key;
-            return listItem(student: devTeam);
+            return listItem(student: devTeam, context: context);
           }),
       floatingActionButton: FloatingActionButton(onPressed: createData, child: const Icon(Icons.add),),
     );
   }
 
-  Widget listItem({required Map student}) {
+  Widget listItem({required Map student, required BuildContext context}) {
     return Container(
       margin: const EdgeInsets.all(10),
       padding: const EdgeInsets.all(10),
@@ -56,6 +57,7 @@ class _RoomListState extends State<RoomList> {
           const SizedBox(
             height: 5,
           ),
+          ElevatedButton(onPressed: () => context.push('/testroom/${student['key']}'), child: const Text('Join'))
         ],
       ),
     );
@@ -80,48 +82,6 @@ class _RoomListState extends State<RoomList> {
     'currentTurn': 'player1',
   };
   databaseReference.child('GameRooms').child('Room1').set(gameState);
-    // databaseReference.child("GameRooms").update({
-    //   "flutterDevsTeam2": {
-    //     'name': 'Yashwant Kumar',
-    //     'description': 'Senior Software Engineer'
-    //   }
-    // });
-    // databaseReference.child("GameRooms").update({
-    //   "flutterDevsTeam3": {'name': 'Akshay', 'description': 'Software Engineer'}
-    // });
-    // databaseReference.child("GameRooms").update({
-    //   "flutterDevsTeam4": {'name': 'Aditya', 'description': 'Software Engineer'}
-    // });
-    // databaseReference.child("GameRooms").update({
-    //   "flutterDevsTeam5": {
-    //     'name': 'Shaiq',
-    //     'description': 'Associate Software Engineer'
-    //   }
-    // });
-    // databaseReference.child("GameRooms").update({
-    //   "flutterDevsTeam6": {
-    //     'name': 'Mohit',
-    //     'description': 'Associate Software Engineer'
-    //   }
-    // });
-    // databaseReference.child("GameRooms").update({
-    //   "flutterDevsTeam7": {
-    //     'name': 'Naveen',
-    //     'description': 'Associate Software Engineer'
-    //   }
-    // });
-    //     databaseReference.child("GameRooms").update({
-    //   "flutterDevsTeam8": {
-    //     'name': 'Kuasnali',
-    //     'description': 'Associate Software Engineer'
-    //   }
-    // });
-    //     databaseReference.child("GameRooms").update({
-    //   "flutterDevsTeam9": {
-    //     'name': 'Ayaka',
-    //     'description': 'Associate Software Engineer'
-    //   }
-    // });
   }
 
   dynamic readData() {

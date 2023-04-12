@@ -10,6 +10,8 @@ import 'my_component.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+  static String get routeName => 'login';
+  static String get routeLocation => '/$routeName';
 
   @override
   State<LoginPage> createState() {
