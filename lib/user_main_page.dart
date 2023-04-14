@@ -1,9 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:othello/login.dart';
+import 'package:uuid/uuid.dart';
+import 'models/player.dart';
 import 'my_component.dart';
 
 class UserMainPage extends StatefulWidget {
@@ -13,7 +16,14 @@ class UserMainPage extends StatefulWidget {
   }
 }
 
+const int itemEmpty = 0;
+const int itemWhite = 1;
+const int itemBlack = 2;
+
 class _UserMainPage extends State<UserMainPage> {
+  List<List<int>> table = [];
+  DatabaseReference dbRef = FirebaseDatabase.instance.ref();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +39,7 @@ class _UserMainPage extends State<UserMainPage> {
               padding: EdgeInsets.symmetric(vertical: 64.0),
             ),
             ElevatedButton(
-                onPressed: () => context.push('/rooms/test_room'),
+                onPressed: () => createNewRoom(context),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.black),
                   minimumSize: MaterialStateProperty.all(const Size(240, 60)),
@@ -123,5 +133,55 @@ class _UserMainPage extends State<UserMainPage> {
     } else {
       return "";
     }
+  }
+
+  void createNewRoom(BuildContext context) async {
+    var uuid = const Uuid().v1();
+
+    initTable();
+    initTableItems();
+    final data = await dbRef
+        .child("GameRooms/$uuid")
+        .once(DatabaseEventType.value)
+        .then((DatabaseEvent event) async {
+      if (!event.snapshot.exists) {
+        String? username = await getUserName();
+        String? userid = FirebaseAuth.instance.currentUser!.uid;
+        Player newPlayer = Player(uid: userid, username: username, color: 0);
+        final gameState = {
+          'board': table,
+          'players': {
+            'player1': newPlayer.toJson(),
+            'player2': {},
+          },
+          'currentTurn': 2,
+          'whiteCount': 2,
+          'blackCount': 2,
+          'winner': ''
+        };
+        dbRef.child('GameRooms/$uuid').set(gameState);
+        context.push('/testroom/$uuid');
+      } else {
+        print("The data is already exsits");
+      }
+    });
+  }
+
+    void initTable() {
+    table = [];
+    for (int row = 0; row < 8; row++) {
+      List<int> list = [];
+      for (int col = 0; col < 8; col++) {
+        list.add(0);
+      }
+      table.add(list);
+    }
+  }
+
+  void initTableItems() {
+    table[3][3] = itemWhite;
+    table[4][3] = itemBlack;
+    table[3][4] = itemBlack;
+    table[4][4] = itemWhite;
   }
 }

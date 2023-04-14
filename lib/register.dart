@@ -51,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   icon: const Icon(Icons.arrow_back_ios_new_outlined),
                   color: Colors.white,
                 ),
-                Padding(padding: EdgeInsets.symmetric(horizontal: 24)),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 32)),
                 const Text(
                   'Register',
                   textAlign: TextAlign.center,

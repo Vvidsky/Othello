@@ -7,20 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:othello/game_room.dart';
-import 'package:othello/room_list.dart';
 import 'package:othello/router/my_router.dart';
-import 'package:othello/test_multiplayer.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:othello/test_syncstate.dart';
 import 'firebase_options.dart';
 import 'my_component.dart';
-
-import 'login.dart';
-import 'game.dart';
-import 'register.dart';
-import 'user_main_page.dart';
-import 'how_to_play.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
