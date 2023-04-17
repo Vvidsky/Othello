@@ -21,47 +21,55 @@ class _RoomListState extends State<RoomList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+        title: const Text("Room List"),
+      ),
       body: FirebaseAnimatedList(
           query: queryRef,
           itemBuilder: (BuildContext context, DataSnapshot snapshot,
               Animation<double> animation, int index) {
             if (!snapshot.exists) {
-              return Text("No Data");
+              return const Text("No Data");
             }
-            Map devTeam = snapshot.value as Map;
-            devTeam['key'] = snapshot.key;
-            return listItem(student: devTeam, context: context);
+            Map room = snapshot.value as Map;
+            room['key'] = snapshot.key;
+            return listItem(room: room, context: context);
           }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: createData,
-        child: const Icon(Icons.add),
-      ),
     );
   }
 
-  Widget listItem({required Map student, required BuildContext context}) {
-    return Container(
-      margin: const EdgeInsets.all(10),
-      padding: const EdgeInsets.all(10),
-      height: 110,
-      color: Colors.amberAccent,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            title: Text(
-              student['key'],
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-            trailing: ElevatedButton(
-                onPressed: () => joinRoom(student['key']),
-                child: const Text('Join')),
-          )
-        ],
-      ),
-    );
+  Widget listItem({required Map room, required BuildContext context}) {
+    try {
+      return Container(
+        margin: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
+        height: 110,
+        color: Colors.amberAccent,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              title: Text(
+                room['key'],
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+              subtitle: Text('players ${room['players'].length} / 2'),
+              trailing: ElevatedButton(
+                  onPressed: room['players'].length == 2
+                      ? null
+                      : () => joinRoom(room['key']),
+                  child: const Text('Join')),
+            )
+          ],
+        ),
+      );
+    } catch (e) {
+      return const SizedBox.shrink();
+    }
   }
 
   void createData() {
@@ -100,17 +108,20 @@ class _RoomListState extends State<RoomList> {
         String? username = await getUserName();
         String? userid = FirebaseAuth.instance.currentUser!.uid;
         Player newPlayer = Player(uid: userid, username: username, color: 0);
-        dbRef.update({'GameRooms/$roomid/players/player2': newPlayer.toJson()});
-        context.push('/testroom/$roomid');
+        var playerData =
+            await dbRef.child('GameRooms/$roomid/players/player2').get();
+        if (!playerData.exists) {
+          await dbRef.update(
+              {'GameRooms/$roomid/players/player2': newPlayer.toJson()});
+        }
+        context.go('/rooms/$roomid');
       } else {
         print("The data is already exsits");
       }
     });
   }
 
-  void loadState() async {
-
-  }
+  void loadState() async {}
 
   Future<String> getUserName() async {
     var userCollection =

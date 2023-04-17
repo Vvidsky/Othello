@@ -1,17 +1,54 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:othello/game_room.dart';
 import 'package:othello/how_to_play.dart';
 import 'package:othello/room_list.dart';
 import 'package:othello/test_syncstate.dart';
 import '../main.dart';
 import '../login.dart';
-import '../game.dart';
 import '../register.dart';
 import '../user_main_page.dart';
 
 class MyRouter {
+  static Future<String?> checkInGame() async {
+    DatabaseReference dbRef = FirebaseDatabase.instance.ref('GameRooms');
+    String roomid = "";
+    bool isUserInGame = false;
+    try {
+      await dbRef
+          .once(DatabaseEventType.value)
+          .then((DatabaseEvent databaseEvent) {
+        Map<dynamic, dynamic> values = databaseEvent.snapshot.value as Map;
+        if (values.isNotEmpty) {
+          values.forEach((key, value) {
+            print(FirebaseAuth.instance.currentUser!.uid);
+            if (value['players']['player1'] != null) {
+              if (value['players']['player1']['uid'] ==
+                  FirebaseAuth.instance.currentUser!.uid) {
+                isUserInGame = true;
+                roomid = key;
+                return;
+              }
+            }
+            if (value['players']['player2'] != null) {
+              if (value['players']['player2']['uid'] ==
+                  FirebaseAuth.instance.currentUser!.uid) {
+                isUserInGame = true;
+                roomid = key;
+                return;
+              }
+            }
+          });
+        }
+      });
+    } catch (e) {
+      throw Exception(e);
+    }
+    print('User is in game $isUserInGame');
+    return isUserInGame == false ? null : '/rooms/$roomid/';
+  }
+
   static GoRouter returnRouter() => GoRouter(
         routes: <RouteBase>[
           GoRoute(
@@ -51,33 +88,22 @@ class MyRouter {
               builder: (BuildContext context, GoRouterState state) {
                 return UserMainPage();
               },
-              redirect: (BuildContext context, GoRouterState state) {
+              redirect: (BuildContext context, GoRouterState state) async {
                 if (FirebaseAuth.instance.currentUser == null) {
                   return '/login';
                 } else {
-                  return null;
-                }
-              }),
-          GoRoute(
-              path: '/game',
-              builder: (BuildContext context, GoRouterState state) {
-                return const GamePage("game");
-              },
-              redirect: (BuildContext context, GoRouterState state) {
-                if (FirebaseAuth.instance.currentUser == null) {
-                  return '/login';
-                } else {
-                  return null;
+                  return await checkInGame();
                 }
               }),
           GoRoute(
               path: '/howtoplay',
               builder: (BuildContext context, GoRouterState state) {
-                return HowToPlay();
+                return const HowToPlay();
               },
-              redirect: (BuildContext context, GoRouterState state) {
+              redirect: (BuildContext context, GoRouterState state) async {
                 if (FirebaseAuth.instance.currentUser == null) {
-                  return '/login';
+                  var isInGame = await checkInGame();
+                  return isInGame!.isEmpty? '/login': isInGame;
                 } else {
                   return null;
                 }
@@ -96,14 +122,6 @@ class MyRouter {
               }),
           GoRoute(
             path: '/rooms/:roomid',
-            builder: (BuildContext context, GoRouterState state) {
-              return GameRoom(
-                roomid: state.params['roomid']!,
-              );
-            },
-          ),
-          GoRoute(
-            path: '/testroom/:roomid',
             builder: (BuildContext context, GoRouterState state) {
               return SyncState(
                 roomid: state.params['roomid']!,

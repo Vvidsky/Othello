@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:othello/user_main_page.dart';
 
 import 'utils/fire_auth.dart';
-import 'my_component.dart';
+import 'Components/my_component.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

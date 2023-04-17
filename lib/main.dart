@@ -9,7 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:othello/router/my_router.dart';
 import 'firebase_options.dart';
-import 'my_component.dart';
+import 'Components/my_component.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

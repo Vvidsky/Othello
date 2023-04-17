@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:othello/login.dart';
 import 'package:uuid/uuid.dart';
 import 'models/player.dart';
-import 'my_component.dart';
+import 'Components/my_component.dart';
 
 class UserMainPage extends StatefulWidget {
   @override
@@ -80,43 +79,34 @@ class _UserMainPage extends State<UserMainPage> {
                       'How to Play?',
                       style: TextStyle(fontSize: 20, color: Colors.black),
                     ))),
-            Container(
-                margin: const EdgeInsets.only(top: 20),
-                child: ElevatedButton(
-                    onPressed: () {
-                      FirebaseAuth.instance.signOut().then((value) {
-                        context.go('/');
-                      });
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.black),
-                      minimumSize:
-                          MaterialStateProperty.all(const Size(240, 60)),
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10))),
-                    ),
-                    child: const Text(
-                      'Logout',
-                      style: TextStyle(fontSize: 20),
-                    ))),
             Expanded(
               child: Align(
                 alignment: FractionalOffset.bottomCenter,
-                child: MaterialButton(
-                  onPressed: () => {},
-                  child: FutureBuilder<String>(
-                      future: getUserName(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<String> snapshot) {
-                        if (snapshot.hasData) {
-                          return Text("Logged in as ${snapshot.data!}");
-                        } else {
-                          return const Text("Loading...");
-                        }
-                      }),
-                ),
+                child: FutureBuilder<String>(
+                    future: getUserName(),
+                    builder:
+                        (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      if (snapshot.hasData) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Logged in as ${snapshot.data!}"),
+                            TextButton(
+                                onPressed: () {
+                                  FirebaseAuth.instance.signOut().then((value) {
+                                    context.go('/');
+                                  });
+                                },
+                                child: const Text('Logout'))
+                          ],
+                        );
+                      } else {
+                        return const Text("Loading...");
+                      }
+                    }),
               ),
             ),
+            const SizedBox(height: 8)
           ],
         ),
       ),
@@ -155,19 +145,21 @@ class _UserMainPage extends State<UserMainPage> {
             'player2': {},
           },
           'currentTurn': 2,
-          'whiteCount': 2,
-          'blackCount': 2,
+          'discsCount': {
+            'whiteCount': 2,
+            'blackCount': 2,
+          },
           'winner': ''
         };
         dbRef.child('GameRooms/$uuid').set(gameState);
-        context.push('/testroom/$uuid');
+        context.go('/rooms/$uuid');
       } else {
         print("The data is already exsits");
       }
     });
   }
 
-    void initTable() {
+  void initTable() {
     table = [];
     for (int row = 0; row < 8; row++) {
       List<int> list = [];
