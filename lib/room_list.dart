@@ -114,7 +114,9 @@ class _RoomListState extends State<RoomList> {
           await dbRef.update(
               {'GameRooms/$roomid/players/player2': newPlayer.toJson()});
         }
-        context.go('/rooms/$roomid');
+        if (context.mounted) {
+          context.go('/rooms/$roomid');
+        }
       } else {
         print("The data is already exsits");
       }

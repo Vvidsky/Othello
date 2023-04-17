@@ -18,9 +18,9 @@ class RoomData {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': this.id,
-      'board': this.board,
-      'currentTurn': this.currentTurn,
+      'id': id,
+      'board': board,
+      'currentTurn': currentTurn,
     };
   }
 }

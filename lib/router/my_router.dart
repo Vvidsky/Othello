@@ -12,17 +12,18 @@ import '../user_main_page.dart';
 
 class MyRouter {
   static Future<String?> checkInGame() async {
-    DatabaseReference dbRef = FirebaseDatabase.instance.ref('GameRooms');
+    DatabaseReference dbRef = FirebaseDatabase.instance.ref();
     String roomid = "";
     bool isUserInGame = false;
     try {
       await dbRef
+          .child('GameRooms')
           .once(DatabaseEventType.value)
           .then((DatabaseEvent databaseEvent) {
         Map<dynamic, dynamic> values = databaseEvent.snapshot.value as Map;
         if (values.isNotEmpty) {
           values.forEach((key, value) {
-            print(FirebaseAuth.instance.currentUser!.uid);
+            // print(FirebaseAuth.instance.currentUser!.uid);
             if (value['players']['player1'] != null) {
               if (value['players']['player1']['uid'] ==
                   FirebaseAuth.instance.currentUser!.uid) {
@@ -43,7 +44,7 @@ class MyRouter {
         }
       });
     } catch (e) {
-      throw Exception(e);
+      print("error");
     }
     print('User is in game $isUserInGame');
     return isUserInGame == false ? null : '/rooms/$roomid/';
@@ -86,7 +87,7 @@ class MyRouter {
           GoRoute(
               path: '/users/:userId',
               builder: (BuildContext context, GoRouterState state) {
-                return UserMainPage();
+                return const UserMainPage();
               },
               redirect: (BuildContext context, GoRouterState state) async {
                 if (FirebaseAuth.instance.currentUser == null) {
@@ -103,7 +104,7 @@ class MyRouter {
               redirect: (BuildContext context, GoRouterState state) async {
                 if (FirebaseAuth.instance.currentUser == null) {
                   var isInGame = await checkInGame();
-                  return isInGame!.isEmpty? '/login': isInGame;
+                  return isInGame!.isEmpty ? '/login' : isInGame;
                 } else {
                   return null;
                 }

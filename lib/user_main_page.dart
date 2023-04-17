@@ -9,6 +9,8 @@ import 'models/player.dart';
 import 'Components/my_component.dart';
 
 class UserMainPage extends StatefulWidget {
+  const UserMainPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _UserMainPage();
@@ -92,8 +94,9 @@ class _UserMainPage extends State<UserMainPage> {
                           children: [
                             Text("Logged in as ${snapshot.data!}"),
                             TextButton(
-                                onPressed: () {
-                                  FirebaseAuth.instance.signOut().then((value) {
+                                onPressed: () async {
+                                  await FirebaseAuth.instance.signOut().then((value) {
+                                    FirebaseAuth.instance.authStateChanges();
                                     context.go('/');
                                   });
                                 },
@@ -130,7 +133,7 @@ class _UserMainPage extends State<UserMainPage> {
 
     initTable();
     initTableItems();
-    final data = await dbRef
+    await dbRef
         .child("GameRooms/$uuid")
         .once(DatabaseEventType.value)
         .then((DatabaseEvent event) async {
@@ -152,7 +155,7 @@ class _UserMainPage extends State<UserMainPage> {
           'winner': ''
         };
         dbRef.child('GameRooms/$uuid').set(gameState);
-        context.go('/rooms/$uuid');
+        if(context.mounted) context.go('/rooms/$uuid');
       } else {
         print("The data is already exsits");
       }

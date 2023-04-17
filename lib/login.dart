@@ -30,17 +30,6 @@ class _LoginPage extends State<LoginPage> {
 
   bool _isProcessing = false;
 
-  Future<FirebaseApp> _initializeFirebase() async {
-    FirebaseApp firebaseApp = await Firebase.initializeApp();
-
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      context.go('/users/${user.uid}');
-    }
-
-    return firebaseApp;
-  }
-
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -186,7 +175,7 @@ class _LoginPage extends State<LoginPage> {
                                               });
 
                                               if (user != null) {
-                                                context.go('/users/${user.uid}');
+                                                if(context.mounted) context.go('/users/${user.uid}');
                                               }
                                             }
                                           },

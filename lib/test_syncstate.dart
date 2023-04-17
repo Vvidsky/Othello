@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,8 +5,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:othello/models/player.dart';
 
 import 'package:othello/models/room_data.dart';
+import 'package:othello/user_main_page.dart';
 
 import 'models/coordinate.dart';
 
@@ -16,7 +17,7 @@ const int ITEM_EMPTY = 0;
 const int ITEM_WHITE = 1;
 const int ITEM_BLACK = 2;
 
-  //ref: https://stackoverflow.com/questions/58030337/valuelistenablebuilder-listen-to-more-than-one-value
+//ref: https://stackoverflow.com/questions/58030337/valuelistenablebuilder-listen-to-more-than-one-value
 class ValueListenableBuilder2<A, B> extends StatelessWidget {
   const ValueListenableBuilder2({
     required this.first,
@@ -61,6 +62,7 @@ class _SyncState extends State<SyncState> {
   final playerPointsToAdd = ValueNotifier<int>(0);
   int currentTurn = ITEM_BLACK;
   bool isYourTurn = false;
+  int yourColor = 0;
   DatabaseReference dbRef = FirebaseDatabase.instance.ref();
   ValueNotifier<int> blackNotifier = ValueNotifier<int>(0);
   ValueNotifier<int> whiteNotifier = ValueNotifier<int>(0);
@@ -69,36 +71,49 @@ class _SyncState extends State<SyncState> {
 
   @override
   void initState() {
-    dbRef
-        .child('GameRooms/${widget.roomid}/board')
-        .onChildChanged
-        .listen((event) {
-      loadState();
-      tableNotifier.value = table;
-      if (countItemBlack + countItemWhite == 26) {
-        _dialogBuilder(context);
-      }
-    });
-    dbRef
-        .child('GameRooms/${widget.roomid}/players')
-        .onChildAdded
-        .listen((event) {
-      assignColortoPlayers();
-      loadState();
-    });
-    dbRef
-        .child('GameRooms/${widget.roomid}/winner')
-        .onChildAdded
-        .listen((event) {
-      if (countItemBlack + countItemWhite == 64) {
-        
-      }
-    });
     initTable();
-    loadState();
+    try {
+      dbRef
+          .child('GameRooms/${widget.roomid}/board')
+          .onChildChanged
+          .listen((event) {
+        loadState();
+        tableNotifier.value = table;
+      });
+      dbRef
+          .child('GameRooms/${widget.roomid}/players')
+          .onChildAdded
+          .listen((event) {
+        assignColortoPlayers();
+        loadState();
+      });
+      dbRef.child('GameRooms/${widget.roomid}/winner').onValue.listen((event) {
+        print('winner triggered');
+        if (mounted) {
+          if (countItemBlack > 3 && countItemWhite > 3) {
+            print('your color $yourColor');
+            try {
+              dbRef
+                  .child("GameRooms/${widget.roomid}")
+                  .once(DatabaseEventType.value)
+                  .then((DatabaseEvent databaseEvent) {
+                Map<dynamic, dynamic> values =
+                    databaseEvent.snapshot.value as Map;
+                _dialogBuilder(context, values['winner']);
+                // print(player1!.uid);
+              });
+            } catch (e) {
+              print('null error');
+            }
+          }
+        }
+      });
+      loadState();
+    } catch (e) {
+      Exception(e);
+    }
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -144,9 +159,7 @@ class _SyncState extends State<SyncState> {
       child:
           Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
         GestureDetector(
-            onTap: () {
-              dbRef.child('GameRooms/${widget.roomid}/players/player1').remove();
-            },
+            onTap: resign,
             child: Container(
                 constraints: const BoxConstraints(minWidth: 120),
                 decoration: BoxDecoration(
@@ -236,58 +249,126 @@ class _SyncState extends State<SyncState> {
     }
   }
 
-  void resign() {}
+  void resign() async {
+    Player? player1;
+    Player? player2;
+    try {
+      await dbRef
+          .child("GameRooms/${widget.roomid}/players/player1")
+          .once(DatabaseEventType.value)
+          .then((DatabaseEvent databaseEvent) {
+        Map<dynamic, dynamic> values = databaseEvent.snapshot.value as Map;
+        player1 = Player.fromJson(values);
+        // print(player1!.uid);
+      });
+    } catch (e) {
+      Exception(e);
+    }
+    try {
+      await dbRef
+          .child("GameRooms/${widget.roomid}/players/player2")
+          .once(DatabaseEventType.value)
+          .then((DatabaseEvent databaseEvent) {
+        Map<dynamic, dynamic> values = databaseEvent.snapshot.value as Map;
+        player2 = Player.fromJson(values);
+      });
+    } catch (e) {
+      Exception(e);
+    }
+    if (player1 != null && player2 != null) {
+      if (player1!.uid == FirebaseAuth.instance.currentUser!.uid &&
+          player2!.uid!.isNotEmpty) {
+        await dbRef
+            .child('GameRooms/${widget.roomid}/players/player1')
+            .set(player2?.toJson());
+        await dbRef
+            .child('GameRooms/${widget.roomid}/players/player2')
+            .remove();
+      }
+      if (player2!.uid == FirebaseAuth.instance.currentUser!.uid &&
+          player1!.uid!.isNotEmpty) {
+        await dbRef
+            .child('GameRooms/${widget.roomid}/players/player2')
+            .remove();
+      }
+    }
+    if (player2 == null) {
+      // await dbRef.child('GameRooms/${widget.roomid}').remove();
+      DataSnapshot dataSnapshot = await dbRef.child('GameRooms').get();
+      Map<dynamic, dynamic> data = dataSnapshot.value as Map;
+      await dbRef.child('GameRooms/${widget.roomid}').remove();
+      // if (data.length >= 3) {
+      //   await dbRef.child('GameRooms/${widget.roomid}').remove();
+      // } else {
+      //   await dbRef
+      //       .child('GameRooms/${widget.roomid}/players/player1')
+      //       .remove();
+      // }
+    }
+    if (context.mounted) context.go('/');
+  }
 
   void loadState() async {
     RoomData? roomData;
     List<List<int>>? newValue;
-    final fuckingEvent = await dbRef
-        .child("GameRooms/${widget.roomid}")
-        .once(DatabaseEventType.value)
-        .then((DatabaseEvent fuck) {
-      Map<dynamic, dynamic> values = fuck.snapshot.value as Map;
-      // firebaseSuck = RoomData(
-      //     id: fuck.snapshot.key,
-      //     board: values["board"],
-      //     currentTurn: values['currentTurn']);
-      roomData = RoomData.fromJsonWithId(fuck.snapshot.key, values);
-      // Map<dynamic, dynamic> values = fuck.snapshot.value as Map;
-      // values.forEach((key, values) {
-      //   firebaseSuck = RoomData(
-      //       id: key,
-      //       board: values["board"],
-      //       currentTurn: values["currentTurn"]);
-      //   // print("Error here ${values["board"].runtimeType}");
-      //   // print(values["board"][0]);
-      // });
-      countItemBlack = values['discsCount']['blackCount'];
-      countItemWhite = values['discsCount']['whiteCount'];
-    });
-    print('${roomData!.id} board ${roomData!.board!}');
-    newValue = roomData!.board!.map((dynamic element) {
-      List<int> subList = [];
-      for (int value in element) {
-        subList.add(value);
+    try {
+      final fuckingEvent = await dbRef
+          .child("GameRooms/${widget.roomid}")
+          .once(DatabaseEventType.value)
+          .then((DatabaseEvent fuck) {
+        Map<dynamic, dynamic> values = fuck.snapshot.value as Map;
+        // firebaseSuck = RoomData(
+        //     id: fuck.snapshot.key,
+        //     board: values["board"],
+        //     currentTurn: values['currentTurn']);
+        roomData = RoomData.fromJsonWithId(fuck.snapshot.key, values);
+        // Map<dynamic, dynamic> values = fuck.snapshot.value as Map;
+        // values.forEach((key, values) {
+        //   firebaseSuck = RoomData(
+        //       id: key,
+        //       board: values["board"],
+        //       currentTurn: values["currentTurn"]);
+        //   // print("Error here ${values["board"].runtimeType}");
+        //   // print(values["board"][0]);
+        // });
+        countItemBlack = values['discsCount']['blackCount'];
+        countItemWhite = values['discsCount']['whiteCount'];
+        Map<dynamic, dynamic> players = values['players'] as Map;
+        if (players.length == 2) {
+          if (values['players']['player1']['uid'] ==
+              FirebaseAuth.instance.currentUser!.uid) {
+            yourColor = values['players']['player1']['color'];
+          }
+          if (values['players']['player2']['uid'] ==
+              FirebaseAuth.instance.currentUser!.uid) {
+            yourColor = values['players']['player2']['color'];
+          }
+        }
+      });
+      // print('${roomData!.id} board ${roomData!.board!}');
+      newValue = roomData!.board!.map((dynamic element) {
+        List<int> subList = [];
+        for (int value in element) {
+          subList.add(value);
+        }
+        return subList;
+      }).toList();
+      // print('loadstate currentTurn: $currentTurn');
+      currentTurn = roomData!.currentTurn!;
+      table = newValue;
+      if (await checkTurn()) {
+        showPossibleMoves(currentTurn);
       }
-      return subList;
-    }).toList();
-    // print('loadstate currentTurn: $currentTurn');
+      tableNotifier.value = table;
 
-    currentTurn = roomData!.currentTurn!;
-    table = newValue;
-    if (await checkTurn()) {
-      showPossibleMoves(currentTurn);
-    }
-    tableNotifier.value = table;
+      blackNotifier.value = countItemBlack;
+      whiteNotifier.value = countItemWhite;
 
-    blackNotifier.value = countItemBlack;
-    whiteNotifier.value = countItemWhite;
-
-    // print("after loadState $table");
-    // print("Error here outside ${firebaseSuck!.board![3]}");
-    // print(firebaseSuck!.currentTurn);
-    if (countItemBlack + countItemWhite == 64) {
-      print('game ended');
+      // print("after loadState $table");
+      // print("Error here outside ${firebaseSuck!.board![3]}");
+      // print(firebaseSuck!.currentTurn);
+    } catch (e) {
+      throw Exception(e);
     }
   }
 
@@ -438,7 +519,6 @@ class _SyncState extends State<SyncState> {
           final gameState = {
             'board': table,
             'currentTurn': currentTurn,
-            'winner': '',
             'discsCount': {
               'whiteCount': countItemWhite,
               'blackCount': countItemBlack,
@@ -446,15 +526,9 @@ class _SyncState extends State<SyncState> {
           };
           dbRef.child('GameRooms/${widget.roomid}').update(gameState);
           if (countItemBlack + countItemWhite == 64) {
-            checkWinner();
-            dbRef
-                .child('GameRooms/${widget.roomid}/players/player1/uid')
-                .set("");
-            dbRef
-                .child('GameRooms/${widget.roomid}/players/player2/uid')
-                .set("");
+            int winner = checkWinner();
+            dbRef.child('GameRooms/${widget.roomid}/winner').set(winner);
           }
-
           return true;
         }
       }
@@ -473,8 +547,7 @@ class _SyncState extends State<SyncState> {
       Map<dynamic, dynamic> value = databaseEvent.snapshot.value as Map;
       // print(value['player2'] == null);
       if (value.length == 2 &&
-          value['player2']['color'] == 0 &&
-          value['player1']['color'] == 0) {
+          (value['player2']['color'] == 0 || value['player1']['color'] == 0)) {
         var random = Random();
         player1Color = random.nextInt(2) + 1;
         player2Color = inverseItem(player1Color);
@@ -526,10 +599,11 @@ class _SyncState extends State<SyncState> {
     return item;
   }
 
-  void checkWinner() {
-    if (countItemBlack == countItemWhite) print("DRAW");
-    if (countItemBlack > countItemWhite) print("Black win");
-    if (countItemWhite > countItemBlack) print("White win");
+  int checkWinner() {
+    if (countItemBlack == countItemWhite) return -1;
+    if (countItemBlack > countItemWhite) return itemBlack;
+    if (countItemWhite > countItemBlack) return itemWhite;
+    return itemEmpty;
   }
 
   List<Coordinate> checkRight(int row, int col, int item) {
@@ -676,33 +750,30 @@ class _SyncState extends State<SyncState> {
     return [];
   }
 
-  Future<void> _dialogBuilder(BuildContext context) {
+  Future<void> _dialogBuilder(BuildContext context, int gameWinner) {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Basic dialog title'),
-          content: const Text('A dialog is a type of modal window that\n'
-              'appears in front of app content to\n'
-              'provide critical information, or prompt\n'
-              'for a decision to be made.'),
+          content: Text(yourColor == gameWinner ? "You Win" : "You Lose"),
           actions: <Widget>[
             TextButton(
               style: TextButton.styleFrom(
                 textStyle: Theme.of(context).textTheme.labelLarge,
               ),
-              child: const Text('Disable'),
+              child: const Text('Rematch'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.pop(context);
               },
             ),
             TextButton(
               style: TextButton.styleFrom(
                 textStyle: Theme.of(context).textTheme.labelLarge,
               ),
-              child: const Text('Enable'),
+              child: const Text('Quit'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context, rootNavigator: true).pop();
               },
             ),
           ],

@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'Components/my_component.dart';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'utils/fire_auth.dart';
-
-import 'user_main_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -180,7 +177,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         });
 
                                         if (user != null) {
-                                          context.go('/users/${user.uid}');
+                                          if(context.mounted) context.go('/users/${user.uid}');
                                         }
                                       }},
                                       child: const Text('Register'),
