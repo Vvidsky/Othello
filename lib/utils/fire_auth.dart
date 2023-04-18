@@ -21,14 +21,12 @@ class FireAuth {
           .collection("users")
           .doc(userCredential.user!.uid)
           .set({"name": name, "email": email, "createdAt":DateTime.now()});
-
       user = userCredential.user;
       await user!.updateDisplayName(name);
       await user.reload();
       user = auth.currentUser;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        
         print('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
         print('The account already exists for that email.');
@@ -36,7 +34,6 @@ class FireAuth {
     } catch (e) {
       print("An error occurs");
     }
-
     return user;
   }
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -68,26 +69,32 @@ class _SyncState extends State<SyncState> {
   ValueNotifier<int> whiteNotifier = ValueNotifier<int>(0);
   int countItemWhite = 0;
   int countItemBlack = 0;
+  late StreamSubscription<DatabaseEvent> boardListener;
+  late StreamSubscription<DatabaseEvent> playerListener;
+  late StreamSubscription<DatabaseEvent> winnerListener;
 
   @override
   void initState() {
     initTable();
     try {
-      dbRef
+      boardListener = dbRef
           .child('GameRooms/${widget.roomid}/board')
           .onChildChanged
           .listen((event) {
         loadState();
         tableNotifier.value = table;
       });
-      dbRef
+      playerListener = dbRef
           .child('GameRooms/${widget.roomid}/players')
           .onChildAdded
           .listen((event) {
         assignColortoPlayers();
         loadState();
       });
-      dbRef.child('GameRooms/${widget.roomid}/winner').onValue.listen((event) {
+      winnerListener = dbRef
+          .child('GameRooms/${widget.roomid}/winner')
+          .onValue
+          .listen((event) {
         print('winner triggered');
         if (mounted) {
           if (countItemBlack > 3 && countItemWhite > 3) {
@@ -97,13 +104,17 @@ class _SyncState extends State<SyncState> {
                   .child("GameRooms/${widget.roomid}")
                   .once(DatabaseEventType.value)
                   .then((DatabaseEvent databaseEvent) {
-                Map<dynamic, dynamic> values =
-                    databaseEvent.snapshot.value as Map;
-                _dialogBuilder(context, values['winner']);
+                try {
+                  Map<dynamic, dynamic> values =
+                      databaseEvent.snapshot.value as Map;
+                  _dialogBuilder(context, values['winner']);
+                } catch (e) {
+                  print("null error");
+                }
                 // print(player1!.uid);
               });
             } catch (e) {
-              print('null error');
+              print('no room');
             }
           }
         }
@@ -113,6 +124,14 @@ class _SyncState extends State<SyncState> {
       Exception(e);
     }
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    boardListener.cancel();
+    playerListener.cancel();
+    winnerListener.cancel();
   }
 
   @override
@@ -525,7 +544,9 @@ class _SyncState extends State<SyncState> {
             },
           };
           dbRef.child('GameRooms/${widget.roomid}').update(gameState);
-          if (countItemBlack + countItemWhite == 64) {
+          if (countItemBlack + countItemWhite == 64 ||
+              countItemBlack == 0 ||
+              countItemWhite == 0) {
             int winner = checkWinner();
             dbRef.child('GameRooms/${widget.roomid}/winner').set(winner);
           }

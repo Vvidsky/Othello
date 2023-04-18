@@ -15,11 +15,11 @@ class LoginPage extends StatefulWidget {
 
   @override
   State<LoginPage> createState() {
-    return _LoginPage();
+    return _LoginPageState();
   }
 }
 
-class _LoginPage extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
   final _emailTextController = TextEditingController();
@@ -153,33 +153,22 @@ class _LoginPage extends State<LoginPage> {
                                           onPressed: () async {
                                             _focusEmail.unfocus();
                                             _focusPassword.unfocus();
-
                                             if (_formKey.currentState!
                                                 .validate()) {
-                                              setState(() {
-                                                _isProcessing = true;
-                                              });
-
-                                              User? user = await FireAuth
-                                                  .signInUsingEmailPassword(
-                                                email:
-                                                    _emailTextController.text,
-                                                password:
-                                                    _passwordTextController
-                                                        .text,
-                                                context: context
-                                              );
-
-                                              setState(() {
-                                                _isProcessing = false;
-                                              });
-
-                                              if (user != null) {
-                                                if(context.mounted) context.go('/users/${user.uid}');
-                                              }
+                                              await login(_emailTextController,
+                                                  _passwordTextController);
                                             }
                                           },
-                                          child: const Text('Login'),
+                                          child: _isProcessing
+                                              ? const SizedBox(
+                                                  height: 30,
+                                                  width: 30,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                          strokeWidth: 3,
+                                                          color: Colors.white),
+                                                )
+                                              : const Text('Login'),
                                         ),
                                       )),
                                 ],
@@ -189,5 +178,19 @@ class _LoginPage extends State<LoginPage> {
             )
           ]),
         )));
+  }
+
+  Future login(email, password) async {
+    setState(() => _isProcessing = true);
+    User? user = await FireAuth.signInUsingEmailPassword(
+        email: _emailTextController.text,
+        password: _passwordTextController.text,
+        context: context);
+    Future.delayed(const Duration(seconds: 2)).then((value) {
+      setState(() => _isProcessing = false);
+      if (user != null) {
+        if (context.mounted) context.go('/users/${user.uid}');
+      }
+    });
   }
 }
