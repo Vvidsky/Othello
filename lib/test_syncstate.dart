@@ -56,7 +56,6 @@ class SyncState extends StatefulWidget {
 }
 
 class _SyncState extends State<SyncState> {
-  late int counter;
   List<List<int>> table = [];
   ValueNotifier<List<List<int>>> tableNotifier =
       ValueNotifier<List<List<int>>>([]);
@@ -65,12 +64,17 @@ class _SyncState extends State<SyncState> {
   bool isYourTurn = false;
   int yourColor = 0;
   DatabaseReference dbRef = FirebaseDatabase.instance.ref();
-  ValueNotifier<int> blackNotifier = ValueNotifier<int>(0);
-  ValueNotifier<int> whiteNotifier = ValueNotifier<int>(0);
+  User? currentUser = FirebaseAuth.instance.currentUser;
   int countItemWhite = 0;
   int countItemBlack = 0;
+  ValueNotifier<int> blackNotifier = ValueNotifier<int>(0);
+  ValueNotifier<int> whiteNotifier = ValueNotifier<int>(0);
+
+  late Player me;
+  late Player opponent;
   late StreamSubscription<DatabaseEvent> boardListener;
   late StreamSubscription<DatabaseEvent> playerListener;
+  late StreamSubscription<DatabaseEvent> quitListener;
   late StreamSubscription<DatabaseEvent> winnerListener;
 
   @override
@@ -79,10 +83,10 @@ class _SyncState extends State<SyncState> {
     try {
       boardListener = dbRef
           .child('GameRooms/${widget.roomid}/board')
-          .onChildChanged
+          .onValue
           .listen((event) {
         loadState();
-        tableNotifier.value = table;
+        // tableNotifier.value = table;
       });
       playerListener = dbRef
           .child('GameRooms/${widget.roomid}/players')
@@ -91,13 +95,21 @@ class _SyncState extends State<SyncState> {
         assignColortoPlayers();
         loadState();
       });
+      quitListener = dbRef
+          .child('GameRooms/${widget.roomid}/players')
+          .onChildRemoved
+          .listen((event) {
+        loadState();
+      });
       winnerListener = dbRef
           .child('GameRooms/${widget.roomid}/winner')
           .onValue
           .listen((event) {
         print('winner triggered');
+        print('winner event ${event.snapshot.value}');
+        print('black $countItemBlack, white $countItemWhite');
         if (mounted) {
-          if (countItemBlack > 3 && countItemWhite > 3) {
+          if (event.snapshot.value == 1 || event.snapshot.value == 2) {
             print('your color $yourColor');
             try {
               dbRef
@@ -107,6 +119,7 @@ class _SyncState extends State<SyncState> {
                 try {
                   Map<dynamic, dynamic> values =
                       databaseEvent.snapshot.value as Map;
+                  checkWinner();
                   _dialogBuilder(context, values['winner']);
                 } catch (e) {
                   print("null error");
@@ -131,6 +144,7 @@ class _SyncState extends State<SyncState> {
     super.dispose();
     boardListener.cancel();
     playerListener.cancel();
+    quitListener.cancel();
     winnerListener.cancel();
   }
 
@@ -166,7 +180,7 @@ class _SyncState extends State<SyncState> {
                 second: whiteNotifier,
                 builder: (context, value, anothervalue, widget) {
                   return buildScoreTab();
-                })
+                }),
           ])),
     );
   }
@@ -331,25 +345,12 @@ class _SyncState extends State<SyncState> {
     RoomData? roomData;
     List<List<int>>? newValue;
     try {
-      final fuckingEvent = await dbRef
+      await dbRef
           .child("GameRooms/${widget.roomid}")
           .once(DatabaseEventType.value)
-          .then((DatabaseEvent fuck) {
-        Map<dynamic, dynamic> values = fuck.snapshot.value as Map;
-        // firebaseSuck = RoomData(
-        //     id: fuck.snapshot.key,
-        //     board: values["board"],
-        //     currentTurn: values['currentTurn']);
-        roomData = RoomData.fromJsonWithId(fuck.snapshot.key, values);
-        // Map<dynamic, dynamic> values = fuck.snapshot.value as Map;
-        // values.forEach((key, values) {
-        //   firebaseSuck = RoomData(
-        //       id: key,
-        //       board: values["board"],
-        //       currentTurn: values["currentTurn"]);
-        //   // print("Error here ${values["board"].runtimeType}");
-        //   // print(values["board"][0]);
-        // });
+          .then((DatabaseEvent databaseEvent) {
+        Map<dynamic, dynamic> values = databaseEvent.snapshot.value as Map;
+        roomData = RoomData.fromJsonWithId(databaseEvent.snapshot.key, values);
         countItemBlack = values['discsCount']['blackCount'];
         countItemWhite = values['discsCount']['whiteCount'];
         Map<dynamic, dynamic> players = values['players'] as Map;
@@ -364,6 +365,7 @@ class _SyncState extends State<SyncState> {
           }
         }
       });
+      print(yourColor);
       // print('${roomData!.id} board ${roomData!.board!}');
       newValue = roomData!.board!.map((dynamic element) {
         List<int> subList = [];
@@ -375,6 +377,7 @@ class _SyncState extends State<SyncState> {
       // print('loadstate currentTurn: $currentTurn');
       currentTurn = roomData!.currentTurn!;
       table = newValue;
+      await Future.delayed(const Duration(milliseconds: 500));
       if (await checkTurn()) {
         showPossibleMoves(currentTurn);
       }
@@ -384,10 +387,8 @@ class _SyncState extends State<SyncState> {
       whiteNotifier.value = countItemWhite;
 
       // print("after loadState $table");
-      // print("Error here outside ${firebaseSuck!.board![3]}");
-      // print(firebaseSuck!.currentTurn);
     } catch (e) {
-      throw Exception(e);
+      Exception(e);
     }
   }
 
@@ -460,13 +461,6 @@ class _SyncState extends State<SyncState> {
     }
   }
 
-  void initTableItems() {
-    table[3][3] = ITEM_WHITE;
-    table[4][3] = ITEM_BLACK;
-    table[3][4] = ITEM_BLACK;
-    table[4][4] = ITEM_WHITE;
-  }
-
   List<Coordinate> showPossibleMoves(int item) {
     List<Coordinate> listPossibleMoves = [];
     for (int row = 0; row < 8; row++) {
@@ -493,13 +487,7 @@ class _SyncState extends State<SyncState> {
         // print('${element.row}, ${element.col}');
         table[element.row][element.col] = -1;
       }
-    } else {
-      // if (countItemBlack + countItemWhite < 64) {
-      //   currentTurn = inverseItem(currentTurn);
-      //   dbRef.child('GameRooms/${widget.roomid}/currentTurn').set(currentTurn);
-      // }
     }
-    // print(table);
     return [];
   }
 
@@ -565,10 +553,17 @@ class _SyncState extends State<SyncState> {
         .child("GameRooms/${widget.roomid}/players")
         .once(DatabaseEventType.value)
         .then((DatabaseEvent databaseEvent) {
-      Map<dynamic, dynamic> value = databaseEvent.snapshot.value as Map;
+      Map<dynamic, dynamic> values = databaseEvent.snapshot.value as Map;
       // print(value['player2'] == null);
-      if (value.length == 2 &&
-          (value['player2']['color'] == 0 || value['player1']['color'] == 0)) {
+      if (values.length == 2 &&
+          (values['player2']['color'] == 0 || values['player1']['color'] == 0)) {
+        if(currentUser!.uid == values['player1']['uid']) {
+          me = Player.fromJson(values['player1']);
+          opponent = Player.fromJson(values['player2']);
+        } else {
+          me = Player.fromJson(values['player2']);
+          opponent = Player.fromJson(values['player1']);
+        }
         var random = Random();
         player1Color = random.nextInt(2) + 1;
         player2Color = inverseItem(player1Color);
@@ -621,6 +616,7 @@ class _SyncState extends State<SyncState> {
   }
 
   int checkWinner() {
+    print('black $countItemBlack, white $countItemWhite');
     if (countItemBlack == countItemWhite) return -1;
     if (countItemBlack > countItemWhite) return itemBlack;
     if (countItemWhite > countItemBlack) return itemWhite;
@@ -794,6 +790,7 @@ class _SyncState extends State<SyncState> {
               ),
               child: const Text('Quit'),
               onPressed: () {
+                removePlayerFromGame(currentUser!.uid);
                 Navigator.of(context, rootNavigator: true).pop();
               },
             ),
@@ -801,5 +798,35 @@ class _SyncState extends State<SyncState> {
         );
       },
     );
+  }
+
+  Future<void> removePlayerFromGame(String uid) async {
+    Player? player2;
+    try {
+      await dbRef
+          .child("GameRooms/${widget.roomid}/players")
+          .once(DatabaseEventType.value)
+          .then((DatabaseEvent databaseEvent) async {
+        Map<dynamic, dynamic> values = databaseEvent.snapshot.value as Map;
+        if (values.length == 1) {
+          dbRef.child("GameRooms/${widget.roomid}").remove();
+        } else {
+          values.forEach((key, values) async {
+            if (uid == values['uid']) {
+              await dbRef.child("GameRooms/${widget.roomid}/players/$key").remove();
+              player2 = Player.fromJson(values);
+            }
+          });
+          if (values['player1'] == null && values['player2'] != null) {
+            await dbRef
+                .child("GameRooms/${widget.roomid}/players/player1")
+                .update(player2!.toJson());
+          }
+        }
+      });
+      if (mounted) context.go('/');
+    } catch (e) {
+      print("removing player error");
+    }
   }
 }

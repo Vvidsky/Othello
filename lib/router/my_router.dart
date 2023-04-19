@@ -24,27 +24,29 @@ class MyRouter {
         if (values.isNotEmpty) {
           values.forEach((key, value) {
             // print(FirebaseAuth.instance.currentUser!.uid);
-            if (value['players']['player1'] != null) {
-              if (value['players']['player1']['uid'] ==
-                  FirebaseAuth.instance.currentUser!.uid) {
-                isUserInGame = true;
-                roomid = key;
-                return;
+            if (value['players'] != null) {
+              if (value['players']['player1'] != null) {
+                if (value['players']['player1']['uid'] ==
+                    FirebaseAuth.instance.currentUser!.uid && value['winner'].toString().isEmpty) {
+                  isUserInGame = true;
+                  roomid = key;
+                  return;
+                }
               }
-            }
-            if (value['players']['player2'] != null) {
-              if (value['players']['player2']['uid'] ==
-                  FirebaseAuth.instance.currentUser!.uid) {
-                isUserInGame = true;
-                roomid = key;
-                return;
+              if (value['players']['player2'] != null) {
+                if (value['players']['player2']['uid'] ==
+                    FirebaseAuth.instance.currentUser!.uid && value['winner'].toString().isEmpty) {
+                  isUserInGame = true;
+                  roomid = key;
+                  return;
+                }
               }
             }
           });
         }
       });
     } catch (e) {
-      print("error");
+      return null;
     }
     print('User is in game $isUserInGame');
     return isUserInGame == false ? null : '/rooms/$roomid/';

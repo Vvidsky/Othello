@@ -40,7 +40,7 @@ class _UserMainPage extends State<UserMainPage> {
               padding: EdgeInsets.symmetric(vertical: 64.0),
             ),
             ElevatedButton(
-                onPressed: () => createNewRoom(context),
+                onPressed: () async => createNewRoom(context),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.black),
                   minimumSize: MaterialStateProperty.all(const Size(240, 60)),
@@ -95,7 +95,9 @@ class _UserMainPage extends State<UserMainPage> {
                             Text("Logged in as ${snapshot.data!}"),
                             TextButton(
                                 onPressed: () async {
-                                  await FirebaseAuth.instance.signOut().then((value) {
+                                  await FirebaseAuth.instance
+                                      .signOut()
+                                      .then((value) {
                                     FirebaseAuth.instance.authStateChanges();
                                     context.go('/');
                                   });
@@ -155,7 +157,7 @@ class _UserMainPage extends State<UserMainPage> {
           'winner': ''
         };
         dbRef.child('GameRooms/$uuid').set(gameState);
-        if(context.mounted) context.go('/rooms/$uuid');
+        if (context.mounted) context.go('/rooms/$uuid');
       } else {
         print("The data is already exsits");
       }

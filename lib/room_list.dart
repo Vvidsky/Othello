@@ -42,7 +42,7 @@ class _RoomListState extends State<RoomList> {
 
   Widget listItem({required Map room, required BuildContext context}) {
     try {
-      return Container(
+      return room['winner'].toString().isEmpty? Container(
         margin: const EdgeInsets.all(10),
         padding: const EdgeInsets.all(10),
         height: 110,
@@ -51,7 +51,7 @@ class _RoomListState extends State<RoomList> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ListTile(
+             ListTile(
               title: Text(
                 room['key'],
                 style:
@@ -66,7 +66,7 @@ class _RoomListState extends State<RoomList> {
             )
           ],
         ),
-      );
+      ) : const SizedBox();
     } catch (e) {
       return const SizedBox.shrink();
     }
