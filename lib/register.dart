@@ -157,30 +157,25 @@ class _RegisterPageState extends State<RegisterPage> {
                                                 borderRadius:
                                                     BorderRadius.circular(10))),
                                       ),
-                                      onPressed: ()  async {
-                                        setState(() {
-                                        _isProcessing = true;
-                                      });
-
-                                      if (_registerFormKey.currentState!
-                                          .validate()) {
-                                        User? user = await FireAuth
-                                            .registerUsingEmailPassword(
-                                          name: _nameTextController.text,
-                                          email: _emailTextController.text,
-                                          password:
-                                              _passwordTextController.text,
-                                        );
-
-                                        setState(() {
-                                          _isProcessing = false;
-                                        });
-
-                                        if (user != null) {
-                                          if(context.mounted) context.go('/users/${user.uid}');
+                                      onPressed: () async {
+                                        if (_registerFormKey.currentState!
+                                            .validate()) {
+                                          signup(
+                                              _nameTextController.text,
+                                              _emailTextController.text,
+                                              _passwordTextController.text);
                                         }
-                                      }},
-                                      child: const Text('Register'),
+                                      },
+                                      child: _isProcessing
+                                              ? const SizedBox(
+                                                  height: 30,
+                                                  width: 30,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                          strokeWidth: 3,
+                                                          color: Colors.white),
+                                                )
+                                              : const Text('Register'),
                                     ),
                                   )),
                             ],
@@ -190,5 +185,20 @@ class _RegisterPageState extends State<RegisterPage> {
         )
       ]),
     ));
+  }
+
+  Future signup(username, email, password) async {
+    setState(() => _isProcessing = true);
+    User? user = await FireAuth.registerUsingEmailPassword(
+      name: username,
+      email: email,
+      password: password,
+    );
+    Future.delayed(const Duration(seconds: 2)).then((value) {
+      setState(() => _isProcessing = false);
+      if (user != null) {
+        if (context.mounted) context.go('/users/${user.uid}');
+      }
+    });
   }
 }
