@@ -149,7 +149,7 @@ class _UserMainPage extends State<UserMainPage> {
             'player1': newPlayer.toJson(),
             'player2': {},
           },
-          'currentTurn': 2,
+          'currentTurn': -1,
           'discsCount': {
             'whiteCount': 2,
             'blackCount': 2,
