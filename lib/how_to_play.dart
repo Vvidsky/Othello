@@ -48,12 +48,12 @@ class HowToPlay extends StatelessWidget {
                       TextSpan(text:'is a strategy board game for two players (Black and White), played on an 8x8 board. The game begins with four discs placed in the middle of the board as shown below. Generally, Black will take the first move.', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
                     ])),
               const SizedBox(height: 8),
-              Image.asset('images/how_to_play - setup.png'),
+              Image.asset('images/howtoplay01 - setup.png'),
               RichText(
                 text: const TextSpan(
                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
                     children: [
-                      TextSpan(text:'If two players are in the game, the screen of the player with black disc will display the possible moves', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
+                      TextSpan(text:'If two players are in the game, the screen of the player with black disc will display the possible moves. The possible moves are the moves where a player can place a disc that form a row that ends with the player color horizontally, vertically, or diagonally', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
                     ])),
               Image.asset('images/how_to_play - possible_moves.png'),
               RichText(
@@ -63,6 +63,19 @@ class HowToPlay extends StatelessWidget {
                       TextSpan(text:'After the first player made a move, the second player will see the possible moves while the first player needs to wait for the opponent to place a disc', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
                     ])),
               Image.asset('images/how_to_play - nextTurn.png'),
+              RichText(
+                text: const TextSpan(
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
+                    children: [
+                      TextSpan(text:'The players will keep placing discs until the board is full. After that, count the total number of discs. The player with more discs on the board is the winner.', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
+                    ])),
+              Image.asset('images/howtoplay04 - winning screen.png'),
+              RichText(
+                text: const TextSpan(
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
+                    children: [
+                      TextSpan(text:'In addition, there are some cases where one of the players completely take over the board. In these cases the player with 0 disc is the loser', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
+                    ])),
           ],
         )));
   }

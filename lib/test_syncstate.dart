@@ -121,6 +121,11 @@ class _SyncState extends State<SyncState> {
             print('your color $yourColor');
             winner = event.snapshot.value as int;
             try {
+              await loadState();
+            } catch(e) {
+              print("can't loadstate");
+            }
+            try {
               await dbRef
                   .child("GameRooms/${widget.roomid}")
                   .once(DatabaseEventType.value)
@@ -505,7 +510,7 @@ class _SyncState extends State<SyncState> {
       currentTurn = roomData!.currentTurn!;
       table = newValue;
       await Future.delayed(const Duration(milliseconds: 300));
-      if (await checkTurn()) {
+      if (isYourTurn = await checkTurn()) {
         showPossibleMoves(currentTurn);
       }
       await Future.delayed(const Duration(milliseconds: 200));
@@ -614,6 +619,12 @@ class _SyncState extends State<SyncState> {
         // print('${element.row}, ${element.col}');
         table[element.row][element.col] = -1;
       }
+    } else {
+      if (countItemBlack > 4 && countItemWhite > 4) {
+        dbRef
+            .child('GameRooms/${widget.roomid}')
+            .update({"currentTurn": inverseItem(currentTurn)});
+      }
     }
     return [];
   }
@@ -658,13 +669,13 @@ class _SyncState extends State<SyncState> {
               'blackCount': countItemBlack,
             },
           };
-          dbRef.child('GameRooms/${widget.roomid}').update(gameState);
+          await dbRef.child('GameRooms/${widget.roomid}').update(gameState);
           if (countItemBlack + countItemWhite == 64 ||
               countItemBlack == 0 ||
               countItemWhite == 0) {
             int winner = checkWinner();
-            dbRef.child('GameRooms/${widget.roomid}/winner').set(winner);
-            dbRef.child('GameRooms/${widget.roomid}/currentTurn').set(-1);
+            await dbRef.child('GameRooms/${widget.roomid}/winner').set(winner);
+            await dbRef.child('GameRooms/${widget.roomid}/currentTurn').set(-1);
           }
           return true;
         }
@@ -946,7 +957,8 @@ class _SyncState extends State<SyncState> {
           .then((DatabaseEvent databaseEvent) async {
         Map<dynamic, dynamic> values = databaseEvent.snapshot.value as Map;
         print(values.length);
-        if (values.length == 1) {
+        if (values.length == 1 &&
+            values['player1']['uid'] == currentUser!.uid) {
           dbRef.child("GameRooms/${widget.roomid}").remove();
         } else {
           values.forEach((key, values) async {
@@ -1018,7 +1030,10 @@ class _SyncState extends State<SyncState> {
       try {
         await dbRef
             .child("GameRooms/${widget.roomid}")
-            .update({"winner": -1, "currentTurn": -1});
+            .update({"winner": '', "currentTurn": -1});
+        await dbRef
+            .child("GameRooms/${widget.roomid}/discsCount")
+            .update({"blackCount": 2, "whiteCount": 2});
         Map<dynamic, dynamic> values = databaseEvent.snapshot.value as Map;
         String? username = await FireDb.getUserName();
         String? userid = currentUser!.uid;
@@ -1037,14 +1052,16 @@ class _SyncState extends State<SyncState> {
         }
         initTable();
         initTableItems();
-        await dbRef.child("GameRooms/${widget.roomid}").update({"board": table});
+        await dbRef
+            .child("GameRooms/${widget.roomid}")
+            .update({"board": table});
       } catch (e) {
         print("Cannot rematch $e");
       }
     });
   }
 
-    void initTableItems() {
+  void initTableItems() {
     table[3][3] = itemWhite;
     table[4][3] = itemBlack;
     table[3][4] = itemBlack;
