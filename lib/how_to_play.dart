@@ -55,26 +55,33 @@ class HowToPlay extends StatelessWidget {
                     children: [
                       TextSpan(text:'If two players are in the game, the screen of the player with black disc will display the possible moves. The possible moves are the moves where a player can place a disc that form a row that ends with the player color horizontally, vertically, or diagonally', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
                     ])),
-              Image.asset('images/how_to_play - possible_moves.png'),
+              Image.asset('images/howtoplay02 - possible_moves.png'),
               RichText(
                 text: const TextSpan(
                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
                     children: [
                       TextSpan(text:'After the first player made a move, the second player will see the possible moves while the first player needs to wait for the opponent to place a disc', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
                     ])),
-              Image.asset('images/how_to_play - nextTurn.png'),
+              Image.asset('images/howtoplay03 - nextTurn.png'),
               RichText(
                 text: const TextSpan(
                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
                     children: [
                       TextSpan(text:'The players will keep placing discs until the board is full. After that, count the total number of discs. The player with more discs on the board is the winner. After the game finished, the user can choose to rematch(stay in the game room) or quit the game for a new match', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
                     ])),
-              Image.asset('images/howtoplay04 - winning screen.png'),
+              Image.asset('images/howtoplay04 - winning_screen.png'),
               RichText(
                 text: const TextSpan(
                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
                     children: [
                       TextSpan(text:'In addition, there are some cases where one of the players completely take over the board. In these cases the player with 0 disc is the loser', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
+                    ])),
+              Image.asset('images/howtoplay04 - special_win.png'),
+              RichText(
+                text: const TextSpan(
+                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
+                    children: [
+                      TextSpan(text:"Finally, the game can also end when both players don't have any legal move.", style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
                     ])),
           ],
         )));

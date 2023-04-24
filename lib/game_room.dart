@@ -525,7 +525,7 @@ class _GameRoom extends State<GameRoom> {
       await Future.delayed(const Duration(milliseconds: 400));
       if (isYourTurn = await checkTurn()) {
         numPossibleMoves = showPossibleMoves(currentTurn);
-        if (numPossibleMoves == 0) {
+        if (numPossibleMoves == 0 && countItemBlack + countItemWhite > 6) {
           if (previousPossibleMoves == 0) {
             int winner = checkWinner();
             await dbRef.child('GameRooms/${widget.roomid}/winner').set(winner);
@@ -754,11 +754,11 @@ class _GameRoom extends State<GameRoom> {
           .then((DatabaseEvent databaseEvent) {
         Map<dynamic, dynamic> values = databaseEvent.snapshot.value as Map;
         values.forEach((key, values) {
-          bool checkUser =
-              values['uid'] == FirebaseAuth.instance.currentUser!.uid;
+          // bool checkUser =
+          //     values['uid'] == FirebaseAuth.instance.currentUser!.uid;
           // print('checkuser: $checkUser');
           if (values['uid'] == FirebaseAuth.instance.currentUser!.uid) {
-            bool checkColor = values['color'] == currentTurn;
+            // bool checkColor = values['color'] == currentTurn;
             // print('checkColor: $checkColor');
             if (values['color'] == currentTurn) {
               isYourTurn = true;
@@ -769,7 +769,7 @@ class _GameRoom extends State<GameRoom> {
         });
       });
     } catch (e) {
-      print("Check turn on null gameroom");
+      // print("Check turn on null gameroom");
     }
 
     return isYourTurn;

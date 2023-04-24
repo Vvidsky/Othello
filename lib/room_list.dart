@@ -101,7 +101,7 @@ class _RoomListState extends State<RoomList> {
 
   void joinRoom(String? roomid) async {
     DatabaseReference dbRef = FirebaseDatabase.instance.ref();
-    final data = await dbRef
+    await dbRef
         .once(DatabaseEventType.value)
         .then((DatabaseEvent event) async {
       if (event.snapshot.exists) {

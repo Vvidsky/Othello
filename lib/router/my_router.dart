@@ -48,7 +48,7 @@ class MyRouter {
     } catch (e) {
       return null;
     }
-    print('User is in game $isUserInGame');
+    // print('User is in game $isUserInGame');
     return isUserInGame == false ? null : '/rooms/$roomid/';
   }
 
@@ -114,7 +114,7 @@ class MyRouter {
           GoRoute(
               path: '/rooms',
               builder: (BuildContext context, GoRouterState state) {
-                return RoomList();
+                return const RoomList();
               },
               redirect: (BuildContext context, GoRouterState state) {
                 if (FirebaseAuth.instance.currentUser == null) {
