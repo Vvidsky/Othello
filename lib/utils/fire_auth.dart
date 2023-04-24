@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+//ref: https://blog.logrocket.com/implementing-firebase-authentication-in-a-flutter-app/
 class FireAuth {
   // For registering a new user
   static Future<User?> registerUsingEmailPassword({

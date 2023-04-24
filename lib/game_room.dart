@@ -47,6 +47,7 @@ class ValueListenableBuilder2<A, B> extends StatelessWidget {
       );
 }
 
+// ref: https://benzneststudios.com/blog/flutter/creating-othello-game-using-flutter/
 class GameRoom extends StatefulWidget {
   final String roomid;
   const GameRoom({super.key, required this.roomid});
