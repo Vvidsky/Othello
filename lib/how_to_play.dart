@@ -36,7 +36,7 @@ class HowToPlay extends StatelessWidget {
             // ]
             ),
         body: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
             child: ListView(
           children: <Widget>[
             const SizedBox(height: 8),
@@ -60,7 +60,7 @@ class HowToPlay extends StatelessWidget {
                 text: const TextSpan(
                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
                     children: [
-                      TextSpan(text:'After the first player made a move, the second player will see the possible moves while the first player needs to wait for the opponent to place a disc', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
+                      TextSpan(text:'After the first player made a move, the second player will see the possible moves to place a disc while the first player needs to wait for the opponent to place a disc', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
                     ])),
               Image.asset('images/howtoplay03 - nextTurn.png'),
               RichText(
@@ -76,12 +76,12 @@ class HowToPlay extends StatelessWidget {
                     children: [
                       TextSpan(text:'In addition, there are some cases where one of the players completely take over the board. In these cases the player with 0 disc is the loser', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
                     ])),
-              Image.asset('images/howtoplay04 - special_win.png'),
+              Image.asset('images/howtoplay05 - special_win.png'),
               RichText(
                 text: const TextSpan(
                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
                     children: [
-                      TextSpan(text:"Finally, the game can also end when both players don't have any legal move.", style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
+                      TextSpan(text:"Finally, the game can also end when both players don't have any legal move. The player with more discs on the board is the winner", style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
                     ])),
           ],
         )));
