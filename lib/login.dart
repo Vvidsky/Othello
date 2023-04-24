@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:othello/Components/my_component.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'utils/fire_auth.dart';
-import 'Components/my_component.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

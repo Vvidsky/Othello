@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+import 'package:othello/Components/my_component.dart';
 import 'models/player.dart';
-import 'Components/my_component.dart';
+
 
 class UserMainPage extends StatefulWidget {
   const UserMainPage({super.key});
