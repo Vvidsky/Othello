@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:othello/how_to_play.dart';
 import 'package:othello/room_list.dart';
-import 'package:othello/test_syncstate.dart';
+import 'package:othello/game_room.dart';
 import '../main.dart';
 import '../login.dart';
 import '../register.dart';
@@ -126,7 +126,7 @@ class MyRouter {
           GoRoute(
             path: '/rooms/:roomid',
             builder: (BuildContext context, GoRouterState state) {
-              return SyncState(
+              return GameRoom(
                 roomid: state.params['roomid']!,
               );
             },

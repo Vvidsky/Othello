@@ -193,8 +193,9 @@ class _RegisterPageState extends State<RegisterPage> {
       name: username,
       email: email,
       password: password,
+      context: context
     );
-    Future.delayed(const Duration(seconds: 2)).then((value) {
+    Future.delayed(const Duration(seconds: 1)).then((value) {
       setState(() => _isProcessing = false);
       if (user != null) {
         if (context.mounted) context.go('/users/${user.uid}');

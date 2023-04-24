@@ -8,6 +8,7 @@ class FireAuth {
     required String name,
     required String email,
     required String password,
+    BuildContext? context
   }) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
@@ -27,8 +28,13 @@ class FireAuth {
       user = auth.currentUser;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
+        ScaffoldMessenger.of(context!).showSnackBar(const SnackBar(content: Text('Weak password')));
         print('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
+        ScaffoldMessenger.of(context!).showSnackBar(const SnackBar(content: Text('The account already exists for that email.')));
+        print('The account already exists for that email.');
+      } else if (e.code == 'invalid-email') {
+        ScaffoldMessenger.of(context!).showSnackBar(const SnackBar(content: Text('Invalid email')));
         print('The account already exists for that email.');
       }
     } catch (e) {
@@ -53,12 +59,12 @@ class FireAuth {
       );
       user = userCredential.user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context!).showSnackBar(const SnackBar(content: Text('No user found for that email.')));
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context!).showSnackBar(const SnackBar(content: Text('Email or password is incorrect.')));
         print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context!).showSnackBar(const SnackBar(content: Text('Wrong password provided.')));
-        print('Wrong password provided.');
+      } else if (e.code == 'invalid-email') {
+        ScaffoldMessenger.of(context!).showSnackBar(const SnackBar(content: Text('Invalid email')));
+        print('Invalid email');
       }
     }
 

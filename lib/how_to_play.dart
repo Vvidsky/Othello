@@ -67,7 +67,7 @@ class HowToPlay extends StatelessWidget {
                 text: const TextSpan(
                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
                     children: [
-                      TextSpan(text:'The players will keep placing discs until the board is full. After that, count the total number of discs. The player with more discs on the board is the winner.', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
+                      TextSpan(text:'The players will keep placing discs until the board is full. After that, count the total number of discs. The player with more discs on the board is the winner. After the game finished, the user can choose to rematch(stay in the game room) or quit the game for a new match', style: TextStyle(height: 1.5, fontWeight: FontWeight.normal, fontSize: 14, color: Colors.black))
                     ])),
               Image.asset('images/howtoplay04 - winning screen.png'),
               RichText(

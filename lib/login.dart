@@ -186,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailTextController.text,
         password: _passwordTextController.text,
         context: context);
-    Future.delayed(const Duration(seconds: 2)).then((value) {
+    Future.delayed(const Duration(seconds: 1)).then((value) {
       setState(() => _isProcessing = false);
       if (user != null) {
         if (context.mounted) context.go('/users/${user.uid}');

@@ -150,6 +150,7 @@ class _UserMainPage extends State<UserMainPage> {
             'player2': {},
           },
           'currentTurn': -1,
+          'numPossibleMoves': -1,
           'discsCount': {
             'whiteCount': 2,
             'blackCount': 2,

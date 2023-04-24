@@ -21,11 +21,17 @@
             "type": "dart",
             "deviceId": "emulator-5554"
         },
+        {
+            "name": "Chrome",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "chrome"
+        },
     ],
     "compounds": [
 		{
 			"name": "All Devices",
-			"configurations": ["Pixel5", "Pixel6"],
+			"configurations": ["Pixel5", "Pixel6", "Chrome"],
 		}
 	]
 }
