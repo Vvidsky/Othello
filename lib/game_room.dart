@@ -411,7 +411,7 @@ class _GameRoom extends State<GameRoom> {
     }
   }
 
-  void resign() async {
+  Future<void> resign() async {
     Player? player1;
     Player? player2;
     await dbRef
@@ -472,7 +472,7 @@ class _GameRoom extends State<GameRoom> {
     if (context.mounted) context.go('/');
   }
 
-  Future loadState() async {
+  Future<void> loadState() async {
     RoomData? roomData;
     List<List<int>>? newValue;
     try {
@@ -706,7 +706,7 @@ class _GameRoom extends State<GameRoom> {
     return false;
   }
 
-  Future assignColortoPlayers() async {
+  Future<void> assignColortoPlayers() async {
     try {
       await dbRef
           .child("GameRooms/${widget.roomid}/players")
@@ -1050,7 +1050,7 @@ class _GameRoom extends State<GameRoom> {
     );
   }
 
-  Future rematch() async {
+  Future<void> rematch() async {
     await dbRef
         .child("GameRooms/${widget.roomid}")
         .once(DatabaseEventType.value)
@@ -1079,9 +1079,11 @@ class _GameRoom extends State<GameRoom> {
         String? userid = currentUser!.uid;
         Player newPlayer = Player(uid: userid, username: username, color: 0);
         if (values['players'] == null) {
+          winner = -2;
           await dbRef
               .child("GameRooms/${widget.roomid}/players")
               .update({"player1": newPlayer.toJson()});
+          yourColorNotifier.value = 0;
         } else {
           if (values['players']['player1'] != null &&
               values['players']['player2'] == null) {
