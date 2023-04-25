@@ -1045,10 +1045,10 @@ class _GameRoom extends State<GameRoom> {
         Player newPlayer = Player(uid: userid, username: username, color: 0);
         if (values['players'] == null) {
           winner = -2;
+          yourColorNotifier.value = 0;
           await dbRef
               .child("GameRooms/${widget.roomid}/players")
               .update({"player1": newPlayer.toJson()});
-          yourColorNotifier.value = 0;
         } else {
           if (values['players']['player1'] != null &&
               values['players']['player2'] == null) {
