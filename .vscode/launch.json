@@ -29,6 +29,10 @@
         },
     ],
     "compounds": [
+        {
+			"name": "Android Devices",
+			"configurations": ["Pixel5", "Pixel6"],
+		},
 		{
 			"name": "All Devices",
 			"configurations": ["Pixel5", "Pixel6", "Chrome"],

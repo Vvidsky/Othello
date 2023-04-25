@@ -362,41 +362,6 @@ class _GameRoom extends State<GameRoom> {
         child: Text(message));
   }
 
-  Widget buildScoreTab() {
-    return Row(mainAxisSize: MainAxisSize.max, children: <Widget>[
-      Expanded(
-          child: Container(
-              color: const Color(0xff34495e),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                        padding: const EdgeInsets.all(16),
-                        child: buildItem(itemWhite)),
-                    Text("x $countItemWhite",
-                        style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white))
-                  ]))),
-      Expanded(
-          child: Container(
-              color: const Color(0xffbdc3c7),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                        padding: const EdgeInsets.all(16),
-                        child: buildItem(itemBlack)),
-                    Text("x $countItemBlack",
-                        style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black))
-                  ])))
-    ]);
-  }
-
   void updateCountItem() {
     countItemBlack = 0;
     countItemWhite = 0;
@@ -737,7 +702,7 @@ class _GameRoom extends State<GameRoom> {
           await dbRef.update({'GameRooms/${widget.roomid}/currentTurn': 2});
         }
       });
-      print('New player yourColor: $yourColor');
+      // print('New player yourColor: $yourColor');
       if (yourColor != 0) {
         await loadState();
       }
@@ -948,8 +913,8 @@ class _GameRoom extends State<GameRoom> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Basic dialog title'),
-          content: Text(yourColor == gameWinner ? "You Win" : "You Lose"),
+          title: const Text('Game Finished'),
+          content: Text(yourColor == gameWinner ? "You Win" : gameWinner == -1? "Draw" : "You Lose"),
           actions: <Widget>[
             TextButton(
               style: TextButton.styleFrom(
@@ -1095,6 +1060,8 @@ class _GameRoom extends State<GameRoom> {
         await dbRef
             .child("GameRooms/${widget.roomid}")
             .update({"board": table});
+        yourColorNotifier.value = 0;
+        winner = -1;
         if (mounted) Navigator.of(context, rootNavigator: true).pop();
       } catch (e) {
         Navigator.of(context, rootNavigator: true).pop();
