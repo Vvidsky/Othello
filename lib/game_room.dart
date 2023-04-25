@@ -1062,8 +1062,6 @@ class _GameRoom extends State<GameRoom> {
         await dbRef
             .child("GameRooms/${widget.roomid}")
             .update({"board": table});
-        yourColorNotifier.value = 0;
-        winner = -1;
         if (mounted) Navigator.of(context, rootNavigator: true).pop();
       } catch (e) {
         Navigator.of(context, rootNavigator: true).pop();
