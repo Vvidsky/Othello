@@ -42,31 +42,47 @@ class _RoomListState extends State<RoomList> {
 
   Widget listItem({required Map room, required BuildContext context}) {
     try {
-      return room['winner'].toString().isEmpty? Container(
-        margin: const EdgeInsets.all(10),
-        padding: const EdgeInsets.all(10),
-        height: 110,
-        color: Colors.amberAccent,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-             ListTile(
-              title: Text(
-                room['key'],
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+      return room['winner'].toString().isEmpty
+          ? Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 3,
+                    blurRadius: 3,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              subtitle: Text('players ${room['players'].length} / 2'),
-              trailing: ElevatedButton(
-                  onPressed: room['players'].length == 2
-                      ? null
-                      : () => joinRoom(room['key']),
-                  child: const Text('Join')),
+              margin: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
+              height: 110,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: Text(
+                      room['key'],
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w700),
+                    ),
+                    subtitle: Text('players ${room['players'].length} / 2'),
+                    trailing: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black // Background color
+                            ),
+                        onPressed: room['players'].length == 2
+                            ? null
+                            : () => joinRoom(room['key']),
+                        child: const Text('Join')),
+                  )
+                ],
+              ),
             )
-          ],
-        ),
-      ) : const SizedBox();
+          : const SizedBox();
     } catch (e) {
       return const SizedBox.shrink();
     }
@@ -101,9 +117,7 @@ class _RoomListState extends State<RoomList> {
 
   void joinRoom(String? roomid) async {
     DatabaseReference dbRef = FirebaseDatabase.instance.ref();
-    await dbRef
-        .once(DatabaseEventType.value)
-        .then((DatabaseEvent event) async {
+    await dbRef.once(DatabaseEventType.value).then((DatabaseEvent event) async {
       if (event.snapshot.exists) {
         String? username = await getUserName();
         String? userid = FirebaseAuth.instance.currentUser!.uid;
