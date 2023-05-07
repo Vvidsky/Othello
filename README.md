@@ -1,16 +1,22 @@
-# othello
+# Othello
 
-A new Flutter project.
+## Creators
+```
+6388030 Kulawut Makkamoltham
+6388040 Ariya Phengphon 
+```
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+Othello is a simple game played on an 8x8 green board with black and white discs. It was invented in 1970 by Goro Hasegawa. 
 
-A few resources to get you started if this is your first Flutter project:
+## Project setup
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+If you want to use your own firebase please read [this installation guide](https://firebase.google.com/docs/flutter/setup?platform=android)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Otherwise, you can clone this project the run
+```
+flutter pub get
+```
+to install required dependencies
+
+
